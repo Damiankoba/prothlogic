@@ -5,13 +5,14 @@ GPU- Nvidia Geforce RTX 5080
 NVIDIA-SMI 595.71.05 Driver Version: 595.71.05 CUDA Version: 13.2
 
 you need the GNU Multiple Precision Arithmetic Library (GMP), OpenMP, and standard build tools.
-```bash
+```
 sudo apt update && sudo apt install -y build-essential libgmp-dev libgmpxx4ldbl libomp-dev
-
+```
 Verify CPU Hardware
 ProthLogic is optimized for modern architectures. You can verify your CPU's L3 cache, NUMA nodes, and AVX-512 support by running:
+```
 lscpu | grep -E 'Model name|AVX512|L3 cache|NUMA node'
-
+```
 Verify CUDA Environment
 An NVIDIA GPU with the CUDA Toolkit is required for the Zero-Copy sieving engine. 
 The project has been successfully tested on CUDA 13.2 (Driver 595.71.05), 
@@ -19,7 +20,8 @@ but any stable CUDA 12.x or newer should compile correctly.
 
 
 Build the Project
+```
 nvcc -O3 -arch=sm_120 --use_fast_math -c gpu_engine.cu -o gpu_engine.o
 g++ *.cpp gpu_engine.o -O3 -march=native -mavx512f -mfma -funroll-loops -fomit-frame-pointer -mprefer-vector-width=512 -ffast-math -std=c++17 -pthread -lgmpxx -lgmp -L/usr/local/cuda/lib64 -lcudart -lcufft -o prothlogic
-
+```
 if you using other GPU, build with correct flag for your device -arch=sm_86,89 or 90.
