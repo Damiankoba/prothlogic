@@ -12,6 +12,7 @@ Flags
 --sieve-only  abord before FFT proth test
 
 this algorithm test one number = one thread
+--------------------------------
 
 Single number test, no needed sieve but default setings are always set:
 
@@ -23,7 +24,7 @@ ProthLogic4.2 CPU & GPUsieve
   N=120002 Range k=[843..843]
   Workers: 21  |  Sieve Pmax: 50000000000
 
-
+--------------------------------
 Starting Proth Test (1 candidates to test)
 
 [AUTOTUNE] starting engine calibration for N=120002...
@@ -44,8 +45,10 @@ Calculations finished.
 Total computation time: 25.61 s
 
 
-
+--------------------------------
 Range test with default sieve:
+
+
 ./prothlogic --n 120002 --k-start 800 --k-end 900
 
 [HARDWARE RADAR] For a number of this size, the memory bandwidth limit allows the Proth test to run safely on 21 of 24 threads.
@@ -89,7 +92,7 @@ Starting Proth Test (3 candidates to test)
 
 Calculations finished.
 Total computation time: 25.91 s
-
+--------------------------------
 Deep presieve on GPU, you can start sieve with minimum pmax or setum maximum (VRAM limit).
 I made test on n 5435752 and range k-100000-200000 with minimum p, after 1697 of 100001 candidates saved to file on begining. Than i add flag --pstart with p which i finished before and higher pmax and test only on sirvived 
 candidates loaded from file. I made with that method several batches with survived candidates, couple example logs below.
@@ -119,7 +122,7 @@ Starting Extreme GPU SPARSE Sieve...
 [SIEVE] Saving 1598 surviving candidates to a file: ocalali_batch6.txt
 [INFO] The --sieve-only flag is active. Stopping before the FFT. Execution complete.
 
-
+--------------------------------
 Continue sieving from file  
 
 prothlogic4.2$ ./prothlogic --n 5435752 --k-start 100000 --pstart 1000000000000000 --pmax 1500000000000000 --in-file ocalali_batch7.txt --out-sieve ocalali_batch8.txt --sieve-only
@@ -150,7 +153,7 @@ Starting Extreme GPU SPARSE Sieve...
 
 [INFO] The --sieve-only flag is active. Stopping before the FFT. Execution complete. 
 
-
+--------------------------------
 Mega candidat test
 
 ./prothlogic --n 5435752 --k-start 199971 --report 10
@@ -184,4 +187,36 @@ Starting Proth Test (1 candidates to test)
 Calculations finished.
 Total computation time: 68731.32 s
 
+
+--------------------------------
+Test from file only, add flag --pstart 500000000000 otherwise presieve will be activated.
+
+./prothlogic --n 2705367 --k-start 1 --report 10 --in-file n2705367.txt --pstart 500000000000
+[HARDWARE RADAR] Bandwidth Limit for proth test on CPU
+[HARDWARE RADAR] For a number of this size, the memory bandwidth limit allows the Proth test to run safely on 1 threads.
+
+  ProthLogic4.2 CPU & GPUsieve
+  N=2705367 Range k=[1..1]
+  Workers: 1  |  Sieve Pmax: 50000000000
+
+Starting Extreme GPU SPARSE Sieve...
+[SYSTEM] Loaded 2 candidates from a file n2705367.txt.
+
+[SPARSE GPU] Starting a sieve for 2 candidates.
+[SPARSE STREAM ZERO-COPY] Sieving, from P=500000000000 to P=50000000000...
+
+[SPARSE STREAM] The list check has been completed!
+[SPARSE DONE] Candidates after sive: 2 z 2
+[DONE] Sparse Sieve time: 0.183838 s
+
+Starting Proth Test (2 candidates to test)
+
+[AUTOTUNE] starting engine calibration for N=2705367...
+[AUTOTUNE] The maximum safety margin has been reached. Selected: 262144
+
+ For N=2705367 -> Selected FFT_Len: 262144
+  [HYBRID ENGINE] Selected: Radix-4 (Optimal Bypass) (FFT_Len = 2^18)
+    [STEP] k=600609 -> 10% | Max Err: 1.09e-01
+    [STEP] k=600609 -> 20% | Max Err: 1.56e-01
+[...]
 
