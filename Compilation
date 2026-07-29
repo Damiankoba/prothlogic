@@ -1,4 +1,4 @@
-Program was tested on hardawre:
+Program was tested on hardware:
 Linux instance
 CPU- AMD Ryzen 9 9900X
 GPU- Nvidia Geforce RTX 5080 
@@ -12,7 +12,7 @@ Verify CPU Hardware
 ProthLogic is optimized for modern architectures. You can verify your CPU's L3 cache, NUMA nodes, and AVX-512 support by running:
 lscpu | grep -E 'Model name|AVX512|L3 cache|NUMA node'
 
-erify CUDA Environment
+Verify CUDA Environment
 An NVIDIA GPU with the CUDA Toolkit is required for the Zero-Copy sieving engine. 
 The project has been successfully tested on CUDA 13.2 (Driver 595.71.05), 
 but any stable CUDA 12.x or newer should compile correctly.
