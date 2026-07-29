@@ -12,8 +12,8 @@ Flags
 --sieve-only  abord before FFT proth test
 
 this algorithm test one number = one thread
---------------------------------
 
+--------------------------------
 Single number test, no needed sieve but default setings are always set:
 
 ./prothlogic --n 120002 --k-start 843
@@ -24,7 +24,6 @@ ProthLogic4.2 CPU & GPUsieve
   N=120002 Range k=[843..843]
   Workers: 21  |  Sieve Pmax: 50000000000
 
---------------------------------
 Starting Proth Test (1 candidates to test)
 
 [AUTOTUNE] starting engine calibration for N=120002...
@@ -44,10 +43,8 @@ Starting Proth Test (1 candidates to test)
 Calculations finished.
 Total computation time: 25.61 s
 
-
 --------------------------------
 Range test with default sieve:
-
 
 ./prothlogic --n 120002 --k-start 800 --k-end 900
 
@@ -92,6 +89,7 @@ Starting Proth Test (3 candidates to test)
 
 Calculations finished.
 Total computation time: 25.91 s
+
 --------------------------------
 Deep presieve on GPU, you can start sieve with minimum pmax or setum maximum (VRAM limit).
 I made test on n 5435752 and range k-100000-200000 with minimum p, after 1697 of 100001 candidates saved to file on begining. Than i add flag --pstart with p which i finished before and higher pmax and test only on sirvived 
