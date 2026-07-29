@@ -5,7 +5,7 @@ GPU- Nvidia Geforce RTX 5080
 NVIDIA-SMI 595.71.05 Driver Version: 595.71.05 CUDA Version: 13.2
 
 you need the GNU Multiple Precision Arithmetic Library (GMP), OpenMP, and standard build tools.
-bash:
+```bash
 sudo apt update && sudo apt install -y build-essential libgmp-dev libgmpxx4ldbl libomp-dev
 
 Verify CPU Hardware
