@@ -90,16 +90,20 @@ Starting Proth Test (3 candidates to test)
 Calculations finished.
 Total computation time: 25.91 s
 
-Deep presieve on GPU, you can start sieve with minimum pmax or setum maximum (VRAM limit)
-below i start n 5435752 and range k-100000-200000 with minimum p, saved to file than i add flag --pstart with p i finished before and higher pmax and test only sirvived 
-candidates loaded from file. I made with that method several batches with survived candidates, below how it works
-flag --k-end is only necessery on beginig, when you have candidates in file, later i set --k-start can be low, all k are saved and loaded from file. Important is "N" number
+Deep presieve on GPU, you can start sieve with minimum pmax or setum maximum (VRAM limit).
+I made test on n 5435752 and range k-100000-200000 with minimum p, after 1697 of 100001 candidates saved to file on begining. Than i add flag --pstart with p which i finished before and higher pmax and test only on sirvived 
+candidates loaded from file. I made with that method several batches with survived candidates, couple example logs below.
+flag --k-end is only necessery on beginig of sieving , when you have candidates in file, --k-start can be low, all k are saved and loaded from file now. 
+Important is "N" number! 
 
 
  ./prothlogic --n 5435752 --k-start 100000 --pstart 110000000000000 --pmax 500000000000000 --in-file ocalali_batch5.txt --out-sieve ocalali_batch6.txt --sieve-only
 
 ProthLogic4.2 CPU & GPUsieve
 N=5435752 Range k=[100000..100000]
+
+Starting Extreme GPU SPARSE Sieve...
+
 [SYSTEM] Loaded 1660 candidates from a file ocalali_batch5.txt.
 
 [SPARSE GPU] Starting a thin sieve for 1660 candidates.
@@ -126,13 +130,9 @@ prothlogic4.2$ ./prothlogic --n 5435752 --k-start 100000 --pstart 10000000000000
 
   Workers: 1  |  Sieve Pmax: 1500000000000000
 
-
-
 Starting Extreme GPU SPARSE Sieve...
 
 [SYSTEM] Loaded 1562 candidates from a file ocalali_batch7.txt.
-
-
 
 [SPARSE GPU] Starting a thin sieve for 1562 candidates.
 
