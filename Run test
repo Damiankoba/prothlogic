@@ -1,0 +1,187 @@
+Flags
+--n         N number
+--k-start   first K to start sieve or single number test
+--k-end     last K to stop sievie
+--pstart    min 50000000000
+--pmax      default min.50000000000
+--workers   numbers of threads
+--report    in %, default 25%, 0=only result, e.g [STEP] k=843 -> 25% | Max Err: 2.93e-03
+--out-primes  out primes to file autosave is to primes.txt, put your file name
+--out-sieve   out candidates after presieve, put your file name
+--in-file     loading candidates to continue presiesieve, or test from file
+--sieve-only  abord before FFT proth test
+
+this algorithm test one number = one thread
+
+Single number test, no needed sieve but default is set:
+
+./prothlogic --n 120002 --k-start 843
+
+
+[HARDWARE RADAR] For a number of this size, the memory bandwidth limit allows the Proth test to run safely on 21 of 24 threads.
+ProthLogic4.2 CPU & GPUsieve
+  N=120002 Range k=[843..843]
+  Workers: 21  |  Sieve Pmax: 50000000000
+
+
+Starting Proth Test (1 candidates to test)
+
+[AUTOTUNE] starting engine calibration for N=120002...
+  -> Karatsuba tests for FFT_Len: 8192 (Bits/word: 14.6487)...
+  Max Err after 100 iterations = 0.00195312
+[AUTOTUNE] Optimal FFT_Len: 8192
+
+ For N=120002 -> Selected FFT_Len: 8192
+  [HYBRID ENGINE] Selected: Radix-8 (Mixed) (FFT_Len = 2^13)
+    [STEP] k=843 -> 25% | Max Err: 2.93e-03
+    [STEP] k=843 -> 50% | Max Err: 2.93e-03
+    [STEP] k=843 -> 75% | Max Err: 1.95e-03
+    [STEP] k=843 -> 100% | Max Err: 2.93e-03
+
+[!] FOUND PRIME: 843 * 2^120002 + 1 (a=5)
+
+Calculations finished.
+Total computation time: 25.61 s
+
+
+
+Range test with default sieve:
+./prothlogic --n 120002 --k-start 800 --k-end 900
+
+[HARDWARE RADAR] For a number of this size, the memory bandwidth limit allows the Proth test to run safely on 21 of 24 threads.
+
+  ProthLogic4.2 CPU & GPUsieve
+  N=120002 Range k=[800..900]
+  Workers: 21  |  Sieve Pmax: 50000000000
+
+Starting Extreme GPU Sieve...
+[GPU] Starting the ZERO-COPY sieve (window 512M) for Pmax=50000000000...
+[STREAM] Processed to P = 50000000001...
+[STREAM] Candidate screening has been completed!
+[DONE] Candidates after sive 3 of 101
+[DONE] Sieve time: 2.4716 s
+
+Starting Proth Test (3 candidates to test)
+
+[AUTOTUNE] starting engine calibration for N=120002...
+  -> Karatsuba tests for FFT_Len: 8192 (Bits/word: 14.6487)...
+  Max Err after 100 iterations = 0.00195312
+[AUTOTUNE] Optimal FFT_Len: 8192
+
+ For N=120002 -> Selected FFT_Len: 8192
+  [HYBRID ENGINE] Selected: Radix-8 (Mixed) (FFT_Len = 2^13)
+    [STEP] k=843 -> 25% | Max Err: 2.93e-03
+    [STEP] k=853 -> 25% | Max Err: 2.93e-03
+    [STEP] k=843 -> 50% | Max Err: 2.93e-03
+    [STEP] k=895 -> 25% | Max Err: 2.93e-03
+    [STEP] k=853 -> 50% | Max Err: 1.95e-03
+    [STEP] k=853 -> 75% | Max Err: 3.91e-03
+    [STEP] k=843 -> 75% | Max Err: 1.95e-03
+    [STEP] k=853 -> 100% | Max Err: 1.95e-03
+[+] 853 * 2^120002 + 1 is COMPOSITE
+    [STEP] k=895 -> 50% | Max Err: 1.95e-03
+    [STEP] k=843 -> 100% | Max Err: 2.93e-03
+
+[!] FOUND PRIME: 843 * 2^120002 + 1 (a=5)
+    [STEP] k=895 -> 75% | Max Err: 2.93e-03
+    [STEP] k=895 -> 100% | Max Err: 1.95e-03
+[+] 895 * 2^120002 + 1 is COMPOSITE
+
+Calculations finished.
+Total computation time: 25.91 s
+
+Deep presieve on GPU, you can start sieve with minimum pmax or setum maximum (VRAM limit)
+below i start n 5435752 and range k-100000-200000 with minimum p, saved to file than i add flag --pstart with p i finished before and higher pmax and test only sirvived 
+candidates loaded from file. I made with that method several batches with survived candidates, below how it works
+flag --k-end is only necessery on beginig, when you have candidates in file, later i set --k-start can be low, all k are saved and loaded from file. Important is "N" number
+
+
+ ./prothlogic --n 5435752 --k-start 100000 --pstart 110000000000000 --pmax 500000000000000 --in-file ocalali_batch5.txt --out-sieve ocalali_batch6.txt --sieve-only
+
+ProthLogic4.2 CPU & GPUsieve
+N=5435752 Range k=[100000..100000]
+[SYSTEM] Loaded 1660 candidates from a file ocalali_batch5.txt.
+
+[SPARSE GPU] Starting a thin sieve for 1660 candidates.
+
+[SPARSE STREAM ZERO-COPY] Sieving, from P=110000000000000 to P=500000000000000...
+
+[SPARSE STREAM] Processed to P = 500000000000000...
+
+[SPARSE DONE] Candidates after sive: 1598 of 1660
+
+[DONE] Sparse Sieve time: 45561.8 s
+
+[SIEVE] Saving 1598 surviving candidates to a file: ocalali_batch6.txt
+[INFO] The --sieve-only flag is active. Stopping before the FFT. Execution complete.
+
+
+Continue sieving from file  
+
+prothlogic4.2$ ./prothlogic --n 5435752 --k-start 100000 --pstart 1000000000000000 --pmax 1500000000000000 --in-file ocalali_batch7.txt --out-sieve ocalali_batch8.txt --sieve-only
+
+  ProthLogic4.2 CPU & GPUsieve
+
+  N=5435752 Range k=[100000..200000]
+
+  Workers: 1  |  Sieve Pmax: 1500000000000000
+
+
+
+Starting Extreme GPU SPARSE Sieve...
+
+[SYSTEM] Loaded 1562 candidates from a file ocalali_batch7.txt.
+
+
+
+[SPARSE GPU] Starting a thin sieve for 1562 candidates.
+
+[SPARSE STREAM ZERO-COPY] Sieving, from P=1000000000000000 to P=1500000000000000...
+
+[SPARSE STREAM] Processed to P = 1500000000000000...
+
+[SPARSE STREAM] The list check has been completed!
+
+[SPARSE DONE] Candidates after sive: 1542 of 1562
+
+[DONE] Sparse Sieve time: 56157.1 s
+
+[SIEVE] Saving 1542 surviving candidates to a file: ocalali_batch8.txt
+
+[INFO] The --sieve-only flag is active. Stopping before the FFT. Execution complete. 
+
+
+Mega candidat test
+
+./prothlogic --n 5435752 --k-start 199971 --report 10
+[HARDWARE RADAR] Bandwidth Limit for proth test on CPU
+[HARDWARE RADAR] For a number of this size, the memory bandwidth limit allows the Proth test to run safely on 1 threads.
+
+  ProthLogic4.2 CPU & GPUsieve
+  N=5435752 Range k=[199971..199971]
+  Workers: 1  |  Sieve Pmax: 50000000000
+
+
+Starting Proth Test (1 candidates to test)
+
+[AUTOTUNE] starting engine calibration for N=5435752...
+[AUTOTUNE] The maximum safety margin has been reached. Selected: 524288
+
+ For N=5435752 -> Selected FFT_Len: 524288
+  [HYBRID ENGINE] Selected: Radix-8 (Mixed) (FFT_Len = 2^19)
+    [STEP] k=199971 -> 10% | Max Err: 2.19e-01
+    [STEP] k=199971 -> 20% | Max Err: 2.50e-01
+    [STEP] k=199971 -> 30% | Max Err: 1.88e-01
+    [STEP] k=199971 -> 40% | Max Err: 1.88e-01
+    [STEP] k=199971 -> 50% | Max Err: 1.88e-01
+    [STEP] k=199971 -> 60% | Max Err: 2.50e-01
+    [STEP] k=199971 -> 70% | Max Err: 1.88e-01
+    [STEP] k=199971 -> 80% | Max Err: 2.50e-01
+    [STEP] k=199971 -> 90% | Max Err: 1.88e-01
+    [STEP] k=199971 -> 100% | Max Err: 2.50e-01
+[+] 199971 * 2^5435752 + 1 is COMPOSITE
+
+Calculations finished.
+Total computation time: 68731.32 s
+
+
