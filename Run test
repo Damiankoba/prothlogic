@@ -4,7 +4,7 @@ Flags
 --k-end     last K to stop sievie
 --pstart    min 50000000000
 --pmax      default min.50000000000
---workers   numbers of threads
+--workers   numbers of threads, one thread=one number tested
 --report    in %, default 25%, 0=only result, e.g [STEP] k=843 -> 25% | Max Err: 2.93e-03
 --out-primes  out primes to file autosave is to primes.txt, put your file name
 --out-sieve   out candidates after presieve, put your file name
