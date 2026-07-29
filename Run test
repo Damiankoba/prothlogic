@@ -13,7 +13,7 @@ Flags
 
 this algorithm test one number = one thread
 
-Single number test, no needed sieve but default is set:
+Single number test, no needed sieve but default setings are always set:
 
 ./prothlogic --n 120002 --k-start 843
 
