@@ -17,4 +17,4 @@ Developing and scaling this kind of computational software requires significant 
 
 The impact of your sponsorship
 ProthLogic is fully open-source and released under the MIT License. Your financial support directly funds the servers and hardware necessary to keep this mathematical research moving forward, while ensuring the code remains free and accessible to the entire community.
-Thank you for being here. Whether you choose to sponsor me, star my repository, or contribute to the code – your support means a lot!
+I don't offer complex rewards or rigid sponsorship tiers. Every single contribution, no matter the size, directly translates into extra hours I can dedicate to coding, optimizing hardware performance, and running server tests. Thank you for fueling this project!
