@@ -28,7 +28,7 @@ Version ProthLogic v5
 
 
 -----------------
-Preparation for next version(v5) and actual i work:
+Preparation for next version(v5) and actual work:
 
 1. I continuing with cache optymize, with the new method huge arrays are now sliced ​​into small tiles, ensuring that the processor always rotates data into the fastest       cache (L1 Cache).  
 2. Radix-8 Logic Repair, previously, the engine could get stuck in the slower Radix-4 Bailey mode. fixed
