@@ -1,10 +1,10 @@
 # ProthLogic 
 ProthLogic is an experimental, CPU/GPU tool for sieving and testing the primality of Proth numbers.
 Sources used to build the program:
-Article "What Every Programmer should know about memory"
-mersenneforum.org
-Wikipedia
-AI
+Article "What Every Programmer should know about memory",
+mersenneforum.org,
+Wikipedia,
+AI,
 To build my program I use the rule: don't copy, but inspire.
 
 This project uses the MPIR / GMP library for multiple precision arithmetic.
