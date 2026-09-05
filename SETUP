@@ -1,6 +1,6 @@
 Program was tested on hardware:
 Linux instance
-CPU- AMD Ryzen 9 9900X
+CPU- AMD Ryzen 9 9900X,AMD Ryzen 9 9900X3D, AMD Ryzen 9 9950X3D, AMD Ryzen 9 7950X
 GPU- Nvidia Geforce RTX 5080 
 NVIDIA-SMI 595.71.05 Driver Version: 595.71.05 CUDA Version: 13.2
 
@@ -21,7 +21,12 @@ but any stable CUDA 12.x or newer should compile correctly.
 
 Build the Project 
 ```
+Prothlogic4.2
 nvcc -O3 -arch=sm_120 --use_fast_math -c gpu_engine.cu -o gpu_engine.o
 g++ *.cpp gpu_engine.o -O3 -march=native -mavx512f -mfma -funroll-loops -fomit-frame-pointer -mprefer-vector-width=512 -ffast-math -std=c++17 -pthread -lgmpxx -lgmp -L/usr/local/cuda/lib64 -lcudart -lcufft -o prothlogic
 ```
+Prothlogic5.3.0
+nvcc -O3 -arch=sm_120 --use_fast_math -c gpu_engine.cu -o gpu_engine.o
+g++ *.cpp gpu_engine.o -O3 -march=native -g -fopenmp -mavx512f -mavx512vbmi -mavx512dq -mavx2 -mfma -funroll-loops -fomit-frame-pointer -mprefer-vector-width=512 -ffast-math -std=c++17 -pthread -lgmpxx -lgmp -L/usr/local/cuda/lib64 -lcudart -lcufft -o prothlogic
+
 if you using other GPU, build with correct flag for your device -arch=sm_86,89 or 90.
