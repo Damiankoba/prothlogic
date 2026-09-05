@@ -1001,7 +1001,7 @@ double* fft_stockham_radix8(FFTContext& ctx, bool inverse) {
 }
 
 // ---------------------------------------------------------
-// CACHE-FRIENDLY RADIX-4 (Bailey 2D) - Z OBSŁUGĄ RADIX-2 NA KOŃCU!
+// CACHE-FRIENDLY RADIX-4 (Bailey 2D) - WITH RADIX-2 SUPPORT AT THE END
 // ---------------------------------------------------------
 double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re, double* out_im,
     size_t n,
@@ -1021,7 +1021,7 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
         size_t remaining = n / m;
 
         // ===============================================================
-        // KROK RADIX-4 (Dla wszystkich pełnych bloków poczwórnych)
+        // KROK RADIX-4 (For all full quad blocks)
         // ===============================================================
         if (remaining >= 4) {
             size_t stride = remaining >> 2;
@@ -1302,41 +1302,83 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
                 }
             }
 
-            m <<= 2; // Zamykamy skok mnożąc przez 4
+            m <<= 2; 
         }
         // ===============================================================
-        // KROK RADIX-2 (Dla "resztek" - nieparzystych potęg np. 131072)
+        // W PEŁNI ZWEKTORYZOWANY KROK RADIX-2 (Kuloodporny AVX-512)
         // ===============================================================
         else if (remaining == 2) {
-            size_t stride = 1;
-            for (size_t j = 0; j < m; j++) {
-                size_t tw = j * stride; // Tutaj stride to zawsze 1, więc tw = j
+            // Używamy setr_epi64 (naturalna kolejność elementów: 0, 1, 2... 7)
+            // To gwarantuje brak błędów sprzętowych przy instrukcji permutex2var!
+            const __m512i idx_even = _mm512_setr_epi64(0, 2, 4, 6, 8, 10, 12, 14);
+            const __m512i idx_odd = _mm512_setr_epi64(1, 3, 5, 7, 9, 11, 13, 15);
 
-                // Używamy wag z tablicy w1r/w1i, w2 i w3 ignorujemy dla Radix-2
-                double w1r = sw1r[tw];
-                double w1i = inverse ? -sw1i[tw] : sw1i[tw];
+            // Definiujemy mnożnik znaku poza pętlą dla IFFT
+            double sign_inv = inverse ? -1.0 : 1.0;
+            const __m512d v_sign_inv = _mm512_set1_pd(sign_inv);
 
-                // W Radix-2 skaczemy co 2 (stride to zaledwie odstęp w wejściu)
+            size_t j = 0;
+            for (; j + 7 < m; j += 8) {
+                // Płynny odczyt 8 wag naraz
+                __m512d v_w1r = _mm512_loadu_pd(&sw1r[j]);
+                __m512d v_w1i = _mm512_mul_pd(_mm512_loadu_pd(&sw1i[j]), v_sign_inv);
+
                 size_t i0 = j * 2;
-                size_t i1 = i0 + 1;
 
+                // Prefetch - ostrzegamy Cache L1/L2 z odpowiednim wyprzedzeniem
+                size_t prefetch_offset = 128;
+                _mm_prefetch((const char*)&cur_in_re[i0 + prefetch_offset], _MM_HINT_NTA);
+                _mm_prefetch((const char*)&cur_in_im[i0 + prefetch_offset], _MM_HINT_NTA);
+
+                // Ładowanie 16 elementów wejściowych naraz 
+                __m512d re_a = _mm512_loadu_pd(&cur_in_re[i0]);
+                __m512d re_b = _mm512_loadu_pd(&cur_in_re[i0 + 8]);
+                __m512d im_a = _mm512_loadu_pd(&cur_in_im[i0]);
+                __m512d im_b = _mm512_loadu_pd(&cur_in_im[i0 + 8]);
+
+                // Błyskawiczny, jednoczesny De-przeplot!
+                __m512d r0 = _mm512_permutex2var_pd(re_a, idx_even, re_b);
+                __m512d r1 = _mm512_permutex2var_pd(re_a, idx_odd, re_b);
+                __m512d i0v = _mm512_permutex2var_pd(im_a, idx_even, im_b);
+                __m512d i1v = _mm512_permutex2var_pd(im_a, idx_odd, im_b);
+
+                // Czysta wektorowa matematyka motylkowa
+                __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
+                __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
+
+                __m512d o0_re = _mm512_add_pd(r0, t1r);
+                __m512d o0_im = _mm512_add_pd(i0v, t1i);
+                __m512d o1_re = _mm512_sub_pd(r0, t1r);
+                __m512d o1_im = _mm512_sub_pd(i0v, t1i);
+
+                // Zapisy do RAM-u
+                size_t o0 = j;
+                size_t o1 = j + m;
+                _mm512_storeu_pd(&cur_out_re[o0], o0_re);
+                _mm512_storeu_pd(&cur_out_im[o0], o0_im);
+                _mm512_storeu_pd(&cur_out_re[o1], o1_re);
+                _mm512_storeu_pd(&cur_out_im[o1], o1_im);
+            }
+
+            // Ogon pętli (fallback skalarowy w razie resztek)
+            for (; j < m; j++) {
+                double w1r = sw1r[j];
+                double w1i = sw1i[j] * sign_inv;
+
+                size_t i0 = j * 2, i1 = i0 + 1;
                 double r0 = cur_in_re[i0], i0v = cur_in_im[i0];
                 double r1 = cur_in_re[i1], i1v = cur_in_im[i1];
 
-                // Matematyka motylkowa Radix-2
                 double t1r = r1 * w1r - i1v * w1i;
                 double t1i = r1 * w1i + i1v * w1r;
 
-                // Zapisujemy z przesunięciem 'm' (połowa paczki Radix-2)
-                size_t o0 = j;
-                size_t o1 = j + m;
-
+                size_t o0 = j, o1 = j + m;
                 cur_out_re[o0] = r0 + t1r;
                 cur_out_im[o0] = i0v + t1i;
                 cur_out_re[o1] = r0 - t1r;
                 cur_out_im[o1] = i0v - t1i;
             }
-            m <<= 1; // Zamykamy krok Radix-2 (mnożymy przez 2)
+            m <<= 1;
         }
 
         std::swap(cur_in_re, cur_out_re);
@@ -1365,7 +1407,7 @@ void fft_bailey_2d(FFTContext& ctx, bool inverse) {
         n2 = 1ULL << (p / 2);       // np. 256
     }
 
-    // INICJALIZACJA WAG TYLKO RAZ (Lazy Initialization zabezpieczona rozmiarem)
+    
     if (ctx.r_w1r.size() != n1) {
         ctx.r_w1r.assign(n1, 0); ctx.r_w1i.assign(n1, 0);
         ctx.r_w2r.assign(n1, 0); ctx.r_w2i.assign(n1, 0);
@@ -1654,14 +1696,12 @@ void fft_square_karatsuba(FFTContext& ctx, uint64_t* v, size_t n_limbs, unsigned
         }
 
         if (is_pure_power_of_two) {
-            // =================================================================
-            // Uwolniony Bailey 2D: Trawi teraz parzyste (np. 18) i nieparzyste (17) 
-            // potęgi dwójki w całości w Cache L1!
-            // =================================================================
+            // Bailey 2D: even (e.g. 18) and odd (17)
+            // powers of two entirely in L1 Cache!=
             fft_bailey_2d(ctx, inverse);
         }
         else {
-            // Zabezpieczenie dla nietypowych długości (np. Radix-3, Radix-5)
+            // Protection for unusual lengths (e.g. Radix-3, Radix-5)
             fft_mixed_radix_execute(ctx, ctx.factor_plan, inverse);
         }
 
@@ -1749,14 +1789,12 @@ void fft_mul_karatsuba(FFTContext& ctx, uint64_t* out, const uint64_t* X, const 
         }
 
         if (is_pure_power_of_two) {
-            // =================================================================
-            // Uwolniony Bailey 2D: Trawi teraz parzyste (np. 18) i nieparzyste (17) 
-            // potęgi dwójki w całości w Cache L1!
-            // =================================================================
+            // Bailey 2D: even (e.g. 18) and odd (17)
+            // powers of two entirely in L1 Cache!
             fft_bailey_2d(ctx, inverse);
         }
         else {
-            // Zabezpieczenie dla nietypowych długości (np. Radix-3, Radix-5)
+            // Protection for unusual lengths (e.g. Radix-3, Radix-5)
             fft_mixed_radix_execute(ctx, ctx.factor_plan, inverse);
         }
 
