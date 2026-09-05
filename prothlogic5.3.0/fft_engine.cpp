@@ -810,9 +810,33 @@ double* fft_stockham_radix8(FFTContext& ctx, bool inverse) {
                     __m512d v_w7r = _mm512_set1_pd(ctx.w1_re[7 * tw]);   __m512d v_w7i = _mm512_set1_pd(inverse ? -ctx.w1_im[7 * tw] : ctx.w1_im[7 * tw]);
 
                     for (size_t k = 0; k < stride; k += 8) {
-                        size_t i0 = k + j * (stride << 3), i1 = i0 + stride, i2 = i1 + stride, i3 = i2 + stride;
-                        size_t i4 = i3 + stride, i5 = i4 + stride, i6 = i5 + stride, i7 = i6 + stride;
+                        size_t i0 = k + j * (stride << 3);
+                        size_t i1 = i0 + stride; size_t i2 = i1 + stride; size_t i3 = i2 + stride;
+                        size_t i4 = i3 + stride; size_t i5 = i4 + stride; size_t i6 = i5 + stride; size_t i7 = i6 + stride;
 
+                        // =======================================================
+                        // 1. SPRZĘTOWY PREFETCH Z FLAGĄ NTA (Non-Temporal Access)
+                        // Pobieramy dane 128 elementów (1024 bajty) w przód prosto do rdzenia.
+                        // =======================================================
+                        size_t prefetch_offset = 128;
+                        _mm_prefetch((const char*)&in_re[i0 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i0 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i1 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i1 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i2 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i2 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i3 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i3 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i4 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i4 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i5 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i5 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i6 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i6 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_re[i7 + prefetch_offset], _MM_HINT_T1);
+                        _mm_prefetch((const char*)&in_im[i7 + prefetch_offset], _MM_HINT_T1);
+
+                        // Ładowanie wektorów (Procesor już je ma w L1 dzięki powyższym instrukcjom!)
                         __m512d r0 = _mm512_load_pd(&in_re[i0]), i0v = _mm512_load_pd(&in_im[i0]);
                         __m512d r1 = _mm512_load_pd(&in_re[i1]), i1v = _mm512_load_pd(&in_im[i1]);
                         __m512d r2 = _mm512_load_pd(&in_re[i2]), i2v = _mm512_load_pd(&in_im[i2]);
@@ -822,6 +846,7 @@ double* fft_stockham_radix8(FFTContext& ctx, bool inverse) {
                         __m512d r6 = _mm512_load_pd(&in_re[i6]), i6v = _mm512_load_pd(&in_im[i6]);
                         __m512d r7 = _mm512_load_pd(&in_re[i7]), i7v = _mm512_load_pd(&in_im[i7]);
 
+                        // --- Butterfly Math (Bez zmian, idealnie spasowane) ---
                         __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i)); __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
                         __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i)); __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
                         __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i)); __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
@@ -835,28 +860,40 @@ double* fft_stockham_radix8(FFTContext& ctx, bool inverse) {
                         __m512d u2r = _mm512_add_pd(t2r, t6r), u2i = _mm512_add_pd(t2i, t6i); __m512d u6r = _mm512_sub_pd(t2r, t6r), u6i = _mm512_sub_pd(t2i, t6i);
                         __m512d u3r = _mm512_add_pd(t3r, t7r), u3i = _mm512_add_pd(t3i, t7i); __m512d u7r = _mm512_sub_pd(t3r, t7r), u7i = _mm512_sub_pd(t3i, t7i);
 
-                        __m512d v5r = _mm512_mul_pd(v_C, _mm512_add_pd(u5r, _mm512_mul_pd(u5i, v_sign)));
-                        __m512d v5i = _mm512_mul_pd(v_C, _mm512_sub_pd(u5i, _mm512_mul_pd(u5r, v_sign)));
+                        __m512d u5i_sign = _mm512_mul_pd(u5i, v_sign);
+                        __m512d u5r_sign = _mm512_mul_pd(u5r, v_sign);
+                        __m512d v5r = _mm512_mul_pd(v_C, _mm512_add_pd(u5r, u5i_sign));
+                        __m512d v5i = _mm512_mul_pd(v_C, _mm512_sub_pd(u5i, u5r_sign));
+
                         __m512d v6r = _mm512_mul_pd(u6i, v_sign);
                         __m512d v6i = _mm512_mul_pd(u6r, v_neg_sign);
-                        __m512d v7r = _mm512_mul_pd(v_C, _mm512_sub_pd(_mm512_mul_pd(u7i, v_sign), u7r));
-                        __m512d v7i = _mm512_mul_pd(v_neg_C, _mm512_add_pd(_mm512_mul_pd(u7r, v_sign), u7i));
+
+                        __m512d u7i_sign = _mm512_mul_pd(u7i, v_sign);
+                        __m512d u7r_sign = _mm512_mul_pd(u7r, v_sign);
+                        __m512d v7r = _mm512_mul_pd(v_C, _mm512_sub_pd(u7i_sign, u7r));
+                        __m512d v7i = _mm512_mul_pd(v_neg_C, _mm512_add_pd(u7r_sign, u7i));
 
                         __m512d a0r = _mm512_add_pd(u0r, u2r), a0i = _mm512_add_pd(u0i, u2i); __m512d a1r = _mm512_sub_pd(u0r, u2r), a1i = _mm512_sub_pd(u0i, u2i);
                         __m512d a2r = _mm512_add_pd(u1r, u3r), a2i = _mm512_add_pd(u1i, u3i); __m512d a3r = _mm512_sub_pd(u1r, u3r), a3i = _mm512_sub_pd(u1i, u3i);
                         __m512d d3r = _mm512_mul_pd(a3i, v_sign), d3i = _mm512_mul_pd(a3r, v_neg_sign);
 
-                        size_t o0 = k + j * stride, o1 = o0 + m * stride, o2 = o1 + m * stride, o3 = o2 + m * stride;
-                        size_t o4 = o3 + m * stride, o5 = o4 + m * stride, o6 = o5 + m * stride, o7 = o6 + m * stride;
-
-                        _mm512_store_pd(&out_re[o0], _mm512_add_pd(a0r, a2r)); _mm512_store_pd(&out_im[o0], _mm512_add_pd(a0i, a2i));
-                        _mm512_store_pd(&out_re[o4], _mm512_sub_pd(a0r, a2r)); _mm512_store_pd(&out_im[o4], _mm512_sub_pd(a0i, a2i));
-                        _mm512_store_pd(&out_re[o2], _mm512_add_pd(a1r, d3r)); _mm512_store_pd(&out_im[o2], _mm512_add_pd(a1i, d3i));
-                        _mm512_store_pd(&out_re[o6], _mm512_sub_pd(a1r, d3r)); _mm512_store_pd(&out_im[o6], _mm512_sub_pd(a1i, d3i));
+                        size_t o0 = k + j * stride;           size_t o1 = o0 + m * stride;
+                        size_t o2 = o1 + m * stride;          size_t o3 = o2 + m * stride;
+                        size_t o4 = o3 + m * stride;          size_t o5 = o4 + m * stride;
+                        size_t o6 = o5 + m * stride;          size_t o7 = o6 + m * stride;
 
                         __m512d b0r = _mm512_add_pd(u4r, v6r), b0i = _mm512_add_pd(u4i, v6i); __m512d b1r = _mm512_sub_pd(u4r, v6r), b1i = _mm512_sub_pd(u4i, v6i);
                         __m512d b2r = _mm512_add_pd(v5r, v7r), b2i = _mm512_add_pd(v5i, v7i); __m512d b3r = _mm512_sub_pd(v5r, v7r), b3i = _mm512_sub_pd(v5i, v7i);
                         __m512d e3r = _mm512_mul_pd(b3i, v_sign), e3i = _mm512_mul_pd(b3r, v_neg_sign);
+
+                        // =======================================================
+                        // 2. ZAPIS STRUMIENIOWY (Ominięcie L1 Cache)
+                        // Wymienia store_pd na stream_pd, aby nie eksmitować wag trygonometrycznych!
+                        // =======================================================
+                        _mm512_store_pd(&out_re[o0], _mm512_add_pd(a0r, a2r)); _mm512_store_pd(&out_im[o0], _mm512_add_pd(a0i, a2i));
+                        _mm512_store_pd(&out_re[o4], _mm512_sub_pd(a0r, a2r)); _mm512_store_pd(&out_im[o4], _mm512_sub_pd(a0i, a2i));
+                        _mm512_store_pd(&out_re[o2], _mm512_add_pd(a1r, d3r)); _mm512_store_pd(&out_im[o2], _mm512_add_pd(a1i, d3i));
+                        _mm512_store_pd(&out_re[o6], _mm512_sub_pd(a1r, d3r)); _mm512_store_pd(&out_im[o6], _mm512_sub_pd(a1i, d3i));
 
                         _mm512_store_pd(&out_re[o1], _mm512_add_pd(b0r, b2r)); _mm512_store_pd(&out_im[o1], _mm512_add_pd(b0i, b2i));
                         _mm512_store_pd(&out_re[o5], _mm512_sub_pd(b0r, b2r)); _mm512_store_pd(&out_im[o5], _mm512_sub_pd(b0i, b2i));
@@ -964,7 +1001,7 @@ double* fft_stockham_radix8(FFTContext& ctx, bool inverse) {
 }
 
 // ---------------------------------------------------------
-// CACHE-FRIENDLY RADIX-4 (Bailey 2D) - ILP UNROLLED
+// CACHE-FRIENDLY RADIX-4 (Bailey 2D) - Z OBSŁUGĄ RADIX-2 NA KOŃCU!
 // ---------------------------------------------------------
 double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re, double* out_im,
     size_t n,
@@ -980,110 +1017,165 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
     double* cur_in_re = in_re; double* cur_in_im = in_im;
     double* cur_out_re = out_re; double* cur_out_im = out_im;
 
-    for (size_t m = 1; m < n; m <<= 2) {
-        size_t stride = n / (m << 2);
+    for (size_t m = 1; m < n; ) {
+        size_t remaining = n / m;
 
-        if (stride >= 8) {
-            for (size_t j = 0; j < m; j++) {
-                size_t tw = j * stride;
-                __m512d v_w1r = _mm512_set1_pd(sw1r[tw]);
-                __m512d v_w1i = _mm512_set1_pd(inverse ? -sw1i[tw] : sw1i[tw]);
-                __m512d v_w2r = _mm512_set1_pd(sw2r[tw]);
-                __m512d v_w2i = _mm512_set1_pd(inverse ? -sw2i[tw] : sw2i[tw]);
-                __m512d v_w3r = _mm512_set1_pd(sw3r[tw]);
-                __m512d v_w3i = _mm512_set1_pd(inverse ? -sw3i[tw] : sw3i[tw]);
+        // ===============================================================
+        // KROK RADIX-4 (Dla wszystkich pełnych bloków poczwórnych)
+        // ===============================================================
+        if (remaining >= 4) {
+            size_t stride = remaining >> 2;
 
-                size_t k = 0;
-                
-                for (; k + 15 < stride; k += 16) {
-                    size_t i0_A = k + j * (stride << 2);
-                    size_t i1_A = i0_A + stride; size_t i2_A = i1_A + stride; size_t i3_A = i2_A + stride;
+            if (stride >= 8) {
+                for (size_t j = 0; j < m; j++) {
+                    size_t tw = j * stride;
+                    __m512d v_w1r = _mm512_set1_pd(sw1r[tw]);
+                    __m512d v_w1i = _mm512_set1_pd(inverse ? -sw1i[tw] : sw1i[tw]);
+                    __m512d v_w2r = _mm512_set1_pd(sw2r[tw]);
+                    __m512d v_w2i = _mm512_set1_pd(inverse ? -sw2i[tw] : sw2i[tw]);
+                    __m512d v_w3r = _mm512_set1_pd(sw3r[tw]);
+                    __m512d v_w3i = _mm512_set1_pd(inverse ? -sw3i[tw] : sw3i[tw]);
 
-                    size_t i0_B = i0_A + 8;
-                    size_t i1_B = i1_A + 8; size_t i2_B = i2_A + 8; size_t i3_B = i3_A + 8;
+                    size_t k = 0;
 
-                    size_t prefetch_offset = 128;
-                    _mm_prefetch((const char*)&cur_in_re[i0_A + prefetch_offset], _MM_HINT_NTA);
-                    _mm_prefetch((const char*)&cur_in_re[i1_A + prefetch_offset], _MM_HINT_NTA);
-                    _mm_prefetch((const char*)&cur_in_re[i2_A + prefetch_offset], _MM_HINT_NTA);
-                    _mm_prefetch((const char*)&cur_in_re[i3_A + prefetch_offset], _MM_HINT_NTA);
+                    for (; k + 15 < stride; k += 16) {
+                        size_t i0_A = k + j * (stride << 2);
+                        size_t i1_A = i0_A + stride; size_t i2_A = i1_A + stride; size_t i3_A = i2_A + stride;
 
-                    __m512d r0_A = _mm512_load_pd(&cur_in_re[i0_A]), i0v_A = _mm512_load_pd(&cur_in_im[i0_A]);
-                    __m512d r0_B = _mm512_load_pd(&cur_in_re[i0_B]), i0v_B = _mm512_load_pd(&cur_in_im[i0_B]);
-                    __m512d r1_A = _mm512_load_pd(&cur_in_re[i1_A]), i1v_A = _mm512_load_pd(&cur_in_im[i1_A]);
-                    __m512d r1_B = _mm512_load_pd(&cur_in_re[i1_B]), i1v_B = _mm512_load_pd(&cur_in_im[i1_B]);
-                    __m512d r2_A = _mm512_load_pd(&cur_in_re[i2_A]), i2v_A = _mm512_load_pd(&cur_in_im[i2_A]);
-                    __m512d r2_B = _mm512_load_pd(&cur_in_re[i2_B]), i2v_B = _mm512_load_pd(&cur_in_im[i2_B]);
-                    __m512d r3_A = _mm512_load_pd(&cur_in_re[i3_A]), i3v_A = _mm512_load_pd(&cur_in_im[i3_A]);
-                    __m512d r3_B = _mm512_load_pd(&cur_in_re[i3_B]), i3v_B = _mm512_load_pd(&cur_in_im[i3_B]);
+                        size_t i0_B = i0_A + 8;
+                        size_t i1_B = i1_A + 8; size_t i2_B = i2_A + 8; size_t i3_B = i3_A + 8;
 
-                    __m512d m1_A = _mm512_mul_pd(i1v_A, v_w1i);
-                    __m512d m1_B = _mm512_mul_pd(i1v_B, v_w1i);
-                    __m512d t1r_A = _mm512_fmsub_pd(r1_A, v_w1r, m1_A);
-                    __m512d t1r_B = _mm512_fmsub_pd(r1_B, v_w1r, m1_B);
+                        size_t prefetch_offset = 128;
+                        _mm_prefetch((const char*)&cur_in_re[i0_A + prefetch_offset], _MM_HINT_NTA);
+                        _mm_prefetch((const char*)&cur_in_re[i1_A + prefetch_offset], _MM_HINT_NTA);
+                        _mm_prefetch((const char*)&cur_in_re[i2_A + prefetch_offset], _MM_HINT_NTA);
+                        _mm_prefetch((const char*)&cur_in_re[i3_A + prefetch_offset], _MM_HINT_NTA);
 
-                    __m512d m2_A = _mm512_mul_pd(i1v_A, v_w1r);
-                    __m512d m2_B = _mm512_mul_pd(i1v_B, v_w1r);
-                    __m512d t1i_A = _mm512_fmadd_pd(r1_A, v_w1i, m2_A);
-                    __m512d t1i_B = _mm512_fmadd_pd(r1_B, v_w1i, m2_B);
+                        __m512d r0_A = _mm512_load_pd(&cur_in_re[i0_A]), i0v_A = _mm512_load_pd(&cur_in_im[i0_A]);
+                        __m512d r0_B = _mm512_load_pd(&cur_in_re[i0_B]), i0v_B = _mm512_load_pd(&cur_in_im[i0_B]);
+                        __m512d r1_A = _mm512_load_pd(&cur_in_re[i1_A]), i1v_A = _mm512_load_pd(&cur_in_im[i1_A]);
+                        __m512d r1_B = _mm512_load_pd(&cur_in_re[i1_B]), i1v_B = _mm512_load_pd(&cur_in_im[i1_B]);
+                        __m512d r2_A = _mm512_load_pd(&cur_in_re[i2_A]), i2v_A = _mm512_load_pd(&cur_in_im[i2_A]);
+                        __m512d r2_B = _mm512_load_pd(&cur_in_re[i2_B]), i2v_B = _mm512_load_pd(&cur_in_im[i2_B]);
+                        __m512d r3_A = _mm512_load_pd(&cur_in_re[i3_A]), i3v_A = _mm512_load_pd(&cur_in_im[i3_A]);
+                        __m512d r3_B = _mm512_load_pd(&cur_in_re[i3_B]), i3v_B = _mm512_load_pd(&cur_in_im[i3_B]);
 
-                    __m512d m3_A = _mm512_mul_pd(i2v_A, v_w2i);
-                    __m512d m3_B = _mm512_mul_pd(i2v_B, v_w2i);
-                    __m512d t2r_A = _mm512_fmsub_pd(r2_A, v_w2r, m3_A);
-                    __m512d t2r_B = _mm512_fmsub_pd(r2_B, v_w2r, m3_B);
+                        __m512d m1_A = _mm512_mul_pd(i1v_A, v_w1i);
+                        __m512d m1_B = _mm512_mul_pd(i1v_B, v_w1i);
+                        __m512d t1r_A = _mm512_fmsub_pd(r1_A, v_w1r, m1_A);
+                        __m512d t1r_B = _mm512_fmsub_pd(r1_B, v_w1r, m1_B);
 
-                    __m512d m4_A = _mm512_mul_pd(i2v_A, v_w2r);
-                    __m512d m4_B = _mm512_mul_pd(i2v_B, v_w2r);
-                    __m512d t2i_A = _mm512_fmadd_pd(r2_A, v_w2i, m4_A);
-                    __m512d t2i_B = _mm512_fmadd_pd(r2_B, v_w2i, m4_B);
+                        __m512d m2_A = _mm512_mul_pd(i1v_A, v_w1r);
+                        __m512d m2_B = _mm512_mul_pd(i1v_B, v_w1r);
+                        __m512d t1i_A = _mm512_fmadd_pd(r1_A, v_w1i, m2_A);
+                        __m512d t1i_B = _mm512_fmadd_pd(r1_B, v_w1i, m2_B);
 
-                    __m512d m5_A = _mm512_mul_pd(i3v_A, v_w3i);
-                    __m512d m5_B = _mm512_mul_pd(i3v_B, v_w3i);
-                    __m512d t3r_A = _mm512_fmsub_pd(r3_A, v_w3r, m5_A);
-                    __m512d t3r_B = _mm512_fmsub_pd(r3_B, v_w3r, m5_B);
+                        __m512d m3_A = _mm512_mul_pd(i2v_A, v_w2i);
+                        __m512d m3_B = _mm512_mul_pd(i2v_B, v_w2i);
+                        __m512d t2r_A = _mm512_fmsub_pd(r2_A, v_w2r, m3_A);
+                        __m512d t2r_B = _mm512_fmsub_pd(r2_B, v_w2r, m3_B);
 
-                    __m512d m6_A = _mm512_mul_pd(i3v_A, v_w3r);
-                    __m512d m6_B = _mm512_mul_pd(i3v_B, v_w3r);
-                    __m512d t3i_A = _mm512_fmadd_pd(r3_A, v_w3i, m6_A);
-                    __m512d t3i_B = _mm512_fmadd_pd(r3_B, v_w3i, m6_B);
+                        __m512d m4_A = _mm512_mul_pd(i2v_A, v_w2r);
+                        __m512d m4_B = _mm512_mul_pd(i2v_B, v_w2r);
+                        __m512d t2i_A = _mm512_fmadd_pd(r2_A, v_w2i, m4_A);
+                        __m512d t2i_B = _mm512_fmadd_pd(r2_B, v_w2i, m4_B);
 
-                    __m512d s0r_A = _mm512_add_pd(r0_A, t2r_A), s0i_A = _mm512_add_pd(i0v_A, t2i_A);
-                    __m512d s0r_B = _mm512_add_pd(r0_B, t2r_B), s0i_B = _mm512_add_pd(i0v_B, t2i_B);
-                    __m512d s1r_A = _mm512_sub_pd(r0_A, t2r_A), s1i_A = _mm512_sub_pd(i0v_A, t2i_A);
-                    __m512d s1r_B = _mm512_sub_pd(r0_B, t2r_B), s1i_B = _mm512_sub_pd(i0v_B, t2i_B);
+                        __m512d m5_A = _mm512_mul_pd(i3v_A, v_w3i);
+                        __m512d m5_B = _mm512_mul_pd(i3v_B, v_w3i);
+                        __m512d t3r_A = _mm512_fmsub_pd(r3_A, v_w3r, m5_A);
+                        __m512d t3r_B = _mm512_fmsub_pd(r3_B, v_w3r, m5_B);
 
-                    __m512d s2r_A = _mm512_add_pd(t1r_A, t3r_A), s2i_A = _mm512_add_pd(t1i_A, t3i_A);
-                    __m512d s2r_B = _mm512_add_pd(t1r_B, t3r_B), s2i_B = _mm512_add_pd(t1i_B, t3i_B);
-                    __m512d s3r_A = _mm512_sub_pd(t1r_A, t3r_A), s3i_A = _mm512_sub_pd(t1i_A, t3i_A);
-                    __m512d s3r_B = _mm512_sub_pd(t1r_B, t3r_B), s3i_B = _mm512_sub_pd(t1i_B, t3i_B);
+                        __m512d m6_A = _mm512_mul_pd(i3v_A, v_w3r);
+                        __m512d m6_B = _mm512_mul_pd(i3v_B, v_w3r);
+                        __m512d t3i_A = _mm512_fmadd_pd(r3_A, v_w3i, m6_A);
+                        __m512d t3i_B = _mm512_fmadd_pd(r3_B, v_w3i, m6_B);
 
-                    __m512d d3r_A = _mm512_mul_pd(s3i_A, v_sign), d3i_A = _mm512_mul_pd(s3r_A, v_neg_sign);
-                    __m512d d3r_B = _mm512_mul_pd(s3i_B, v_sign), d3i_B = _mm512_mul_pd(s3r_B, v_neg_sign);
+                        __m512d s0r_A = _mm512_add_pd(r0_A, t2r_A), s0i_A = _mm512_add_pd(i0v_A, t2i_A);
+                        __m512d s0r_B = _mm512_add_pd(r0_B, t2r_B), s0i_B = _mm512_add_pd(i0v_B, t2i_B);
+                        __m512d s1r_A = _mm512_sub_pd(r0_A, t2r_A), s1i_A = _mm512_sub_pd(i0v_A, t2i_A);
+                        __m512d s1r_B = _mm512_sub_pd(r0_B, t2r_B), s1i_B = _mm512_sub_pd(i0v_B, t2i_B);
 
-                    size_t o0_A = k + j * stride;           size_t o1_A = o0_A + m * stride;
-                    size_t o2_A = o1_A + m * stride;        size_t o3_A = o2_A + m * stride;
-                    size_t o0_B = o0_A + 8;                 size_t o1_B = o1_A + 8;
-                    size_t o2_B = o2_A + 8;                 size_t o3_B = o3_A + 8;
+                        __m512d s2r_A = _mm512_add_pd(t1r_A, t3r_A), s2i_A = _mm512_add_pd(t1i_A, t3i_A);
+                        __m512d s2r_B = _mm512_add_pd(t1r_B, t3r_B), s2i_B = _mm512_add_pd(t1i_B, t3i_B);
+                        __m512d s3r_A = _mm512_sub_pd(t1r_A, t3r_A), s3i_A = _mm512_sub_pd(t1i_A, t3i_A);
+                        __m512d s3r_B = _mm512_sub_pd(t1r_B, t3r_B), s3i_B = _mm512_sub_pd(t1i_B, t3i_B);
 
-                    _mm512_store_pd(&cur_out_re[o0_A], _mm512_add_pd(s0r_A, s2r_A)); _mm512_store_pd(&cur_out_im[o0_A], _mm512_add_pd(s0i_A, s2i_A));
-                    _mm512_store_pd(&cur_out_re[o0_B], _mm512_add_pd(s0r_B, s2r_B)); _mm512_store_pd(&cur_out_im[o0_B], _mm512_add_pd(s0i_B, s2i_B));
-                    _mm512_store_pd(&cur_out_re[o1_A], _mm512_add_pd(s1r_A, d3r_A)); _mm512_store_pd(&cur_out_im[o1_A], _mm512_add_pd(s1i_A, d3i_A));
-                    _mm512_store_pd(&cur_out_re[o1_B], _mm512_add_pd(s1r_B, d3r_B)); _mm512_store_pd(&cur_out_im[o1_B], _mm512_add_pd(s1i_B, d3i_B));
-                    _mm512_store_pd(&cur_out_re[o2_A], _mm512_sub_pd(s0r_A, s2r_A)); _mm512_store_pd(&cur_out_im[o2_A], _mm512_sub_pd(s0i_A, s2i_A));
-                    _mm512_store_pd(&cur_out_re[o2_B], _mm512_sub_pd(s0r_B, s2r_B)); _mm512_store_pd(&cur_out_im[o2_B], _mm512_sub_pd(s0i_B, s2i_B));
-                    _mm512_store_pd(&cur_out_re[o3_A], _mm512_sub_pd(s1r_A, d3r_A)); _mm512_store_pd(&cur_out_im[o3_A], _mm512_sub_pd(s1i_A, d3i_A));
-                    _mm512_store_pd(&cur_out_re[o3_B], _mm512_sub_pd(s1r_B, d3r_B)); _mm512_store_pd(&cur_out_im[o3_B], _mm512_sub_pd(s1i_B, d3i_B));
+                        __m512d d3r_A = _mm512_mul_pd(s3i_A, v_sign), d3i_A = _mm512_mul_pd(s3r_A, v_neg_sign);
+                        __m512d d3r_B = _mm512_mul_pd(s3i_B, v_sign), d3i_B = _mm512_mul_pd(s3r_B, v_neg_sign);
+
+                        size_t o0_A = k + j * stride;           size_t o1_A = o0_A + m * stride;
+                        size_t o2_A = o1_A + m * stride;        size_t o3_A = o2_A + m * stride;
+                        size_t o0_B = o0_A + 8;                 size_t o1_B = o1_A + 8;
+                        size_t o2_B = o2_A + 8;                 size_t o3_B = o3_A + 8;
+
+                        _mm512_store_pd(&cur_out_re[o0_A], _mm512_add_pd(s0r_A, s2r_A)); _mm512_store_pd(&cur_out_im[o0_A], _mm512_add_pd(s0i_A, s2i_A));
+                        _mm512_store_pd(&cur_out_re[o0_B], _mm512_add_pd(s0r_B, s2r_B)); _mm512_store_pd(&cur_out_im[o0_B], _mm512_add_pd(s0i_B, s2i_B));
+                        _mm512_store_pd(&cur_out_re[o1_A], _mm512_add_pd(s1r_A, d3r_A)); _mm512_store_pd(&cur_out_im[o1_A], _mm512_add_pd(s1i_A, d3i_A));
+                        _mm512_store_pd(&cur_out_re[o1_B], _mm512_add_pd(s1r_B, d3r_B)); _mm512_store_pd(&cur_out_im[o1_B], _mm512_add_pd(s1i_B, d3i_B));
+                        _mm512_store_pd(&cur_out_re[o2_A], _mm512_sub_pd(s0r_A, s2r_A)); _mm512_store_pd(&cur_out_im[o2_A], _mm512_sub_pd(s0i_A, s2i_A));
+                        _mm512_store_pd(&cur_out_re[o2_B], _mm512_sub_pd(s0r_B, s2r_B)); _mm512_store_pd(&cur_out_im[o2_B], _mm512_sub_pd(s0i_B, s2i_B));
+                        _mm512_store_pd(&cur_out_re[o3_A], _mm512_sub_pd(s1r_A, d3r_A)); _mm512_store_pd(&cur_out_im[o3_A], _mm512_sub_pd(s1i_A, d3i_A));
+                        _mm512_store_pd(&cur_out_re[o3_B], _mm512_sub_pd(s1r_B, d3r_B)); _mm512_store_pd(&cur_out_im[o3_B], _mm512_sub_pd(s1i_B, d3i_B));
+                    }
+
+
+                    for (; k < stride; k += 8) {
+                        size_t i0 = k + j * (stride << 2);
+                        size_t i1 = i0 + stride; size_t i2 = i1 + stride; size_t i3 = i2 + stride;
+
+                        __m512d r0 = _mm512_load_pd(&cur_in_re[i0]), i0v = _mm512_load_pd(&cur_in_im[i0]);
+                        __m512d r1 = _mm512_load_pd(&cur_in_re[i1]), i1v = _mm512_load_pd(&cur_in_im[i1]);
+                        __m512d r2 = _mm512_load_pd(&cur_in_re[i2]), i2v = _mm512_load_pd(&cur_in_im[i2]);
+                        __m512d r3 = _mm512_load_pd(&cur_in_re[i3]), i3v = _mm512_load_pd(&cur_in_im[i3]);
+
+                        __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
+                        __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
+                        __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i));
+                        __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
+                        __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
+                        __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
+
+                        __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
+                        __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
+                        __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
+                        __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
+
+                        __m512d d3r = _mm512_mul_pd(s3i, v_sign);
+                        __m512d d3i = _mm512_mul_pd(s3r, v_neg_sign);
+
+                        size_t o0 = k + j * stride; size_t o1 = o0 + m * stride;
+                        size_t o2 = o1 + m * stride; size_t o3 = o2 + m * stride;
+                        _mm512_store_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r));
+                        _mm512_store_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
+                        _mm512_store_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r));
+                        _mm512_store_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
+                        _mm512_store_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r));
+                        _mm512_store_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
+                        _mm512_store_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r));
+                        _mm512_store_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                    }
                 }
+            }
+            else if (stride == 4 && m >= 2) {
+                for (size_t j = 0; j < m; j += 2) {
+                    size_t tw0 = j * 4, tw1 = (j + 1) * 4;
+                    auto tw_v = [](double t0, double t1) {
+                        return _mm512_insertf64x4(_mm512_castpd256_pd512(_mm256_set1_pd(t0)), _mm256_set1_pd(t1), 1);
+                        };
+                    __m512d v_w1r = tw_v(sw1r[tw0], sw1r[tw1]);
+                    __m512d v_w1i = tw_v(inverse ? -sw1i[tw0] : sw1i[tw0], inverse ? -sw1i[tw1] : sw1i[tw1]);
+                    __m512d v_w2r = tw_v(sw2r[tw0], sw2r[tw1]);
+                    __m512d v_w2i = tw_v(inverse ? -sw2i[tw0] : sw2i[tw0], inverse ? -sw2i[tw1] : sw2i[tw1]);
+                    __m512d v_w3r = tw_v(sw3r[tw0], sw3r[tw1]);
+                    __m512d v_w3i = tw_v(inverse ? -sw3i[tw0] : sw3i[tw0], inverse ? -sw3i[tw1] : sw3i[tw1]);
 
-                
-                for (; k < stride; k += 8) {
-                    size_t i0 = k + j * (stride << 2);
-                    size_t i1 = i0 + stride; size_t i2 = i1 + stride; size_t i3 = i2 + stride;
-
-                    __m512d r0 = _mm512_load_pd(&cur_in_re[i0]), i0v = _mm512_load_pd(&cur_in_im[i0]);
-                    __m512d r1 = _mm512_load_pd(&cur_in_re[i1]), i1v = _mm512_load_pd(&cur_in_im[i1]);
-                    __m512d r2 = _mm512_load_pd(&cur_in_re[i2]), i2v = _mm512_load_pd(&cur_in_im[i2]);
-                    __m512d r3 = _mm512_load_pd(&cur_in_re[i3]), i3v = _mm512_load_pd(&cur_in_im[i3]);
+                    auto load2x4 = [&](const double* ptr, size_t off) {
+                        return _mm512_insertf64x4(_mm512_castpd256_pd512(_mm256_loadu_pd(&ptr[j * 16 + off])), _mm256_loadu_pd(&ptr[(j + 1) * 16 + off]), 1);
+                        };
+                    __m512d r0 = load2x4(cur_in_re, 0);  __m512d i0v = load2x4(cur_in_im, 0);
+                    __m512d r1 = load2x4(cur_in_re, 4);  __m512d i1v = load2x4(cur_in_im, 4);
+                    __m512d r2 = load2x4(cur_in_re, 8);  __m512d i2v = load2x4(cur_in_im, 8);
+                    __m512d r3 = load2x4(cur_in_re, 12); __m512d i3v = load2x4(cur_in_im, 12);
 
                     __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
                     __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
@@ -1091,176 +1183,166 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
                     __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
                     __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
                     __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
-
                     __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
                     __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
                     __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
                     __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
+                    __m512d d3r = _mm512_mul_pd(s3i, v_sign), d3i = _mm512_mul_pd(s3r, v_neg_sign);
 
-                    __m512d d3r = _mm512_mul_pd(s3i, v_sign);
-                    __m512d d3i = _mm512_mul_pd(s3r, v_neg_sign);
-
-                    size_t o0 = k + j * stride; size_t o1 = o0 + m * stride;
-                    size_t o2 = o1 + m * stride; size_t o3 = o2 + m * stride;
-                    _mm512_store_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r));
-                    _mm512_store_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
-                    _mm512_store_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r));
-                    _mm512_store_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
-                    _mm512_store_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r));
-                    _mm512_store_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
-                    _mm512_store_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r));
-                    _mm512_store_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                    size_t o0 = j * 4; size_t o1 = o0 + m * 4; size_t o2 = o1 + m * 4; size_t o3 = o2 + m * 4;
+                    _mm512_storeu_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
+                    _mm512_storeu_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
+                    _mm512_storeu_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
+                    _mm512_storeu_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
                 }
             }
-        }
-        else if (stride == 4 && m >= 2) {
-            for (size_t j = 0; j < m; j += 2) {
-                size_t tw0 = j * 4, tw1 = (j + 1) * 4;
-                auto tw_v = [](double t0, double t1) {
-                    return _mm512_insertf64x4(_mm512_castpd256_pd512(_mm256_set1_pd(t0)), _mm256_set1_pd(t1), 1);
-                    };
-                __m512d v_w1r = tw_v(sw1r[tw0], sw1r[tw1]);
-                __m512d v_w1i = tw_v(inverse ? -sw1i[tw0] : sw1i[tw0], inverse ? -sw1i[tw1] : sw1i[tw1]);
-                __m512d v_w2r = tw_v(sw2r[tw0], sw2r[tw1]);
-                __m512d v_w2i = tw_v(inverse ? -sw2i[tw0] : sw2i[tw0], inverse ? -sw2i[tw1] : sw2i[tw1]);
-                __m512d v_w3r = tw_v(sw3r[tw0], sw3r[tw1]);
-                __m512d v_w3i = tw_v(inverse ? -sw3i[tw0] : sw3i[tw0], inverse ? -sw3i[tw1] : sw3i[tw1]);
+            else if (stride == 2 && m >= 4) {
+                for (size_t j = 0; j < m; j += 4) {
+                    auto tw_im = [&](const std::vector<double>& arr, size_t idx) { return inverse ? -arr[idx] : arr[idx]; };
+                    auto tw_v2 = [](double t0, double t1, double t2, double t3) {
+                        return _mm512_insertf64x4(_mm512_castpd256_pd512(_mm256_setr_pd(t0, t0, t1, t1)), _mm256_setr_pd(t2, t2, t3, t3), 1);
+                        };
+                    size_t t0 = j * 2, t1 = (j + 1) * 2, t2 = (j + 2) * 2, t3 = (j + 3) * 2;
+                    __m512d v_w1r = tw_v2(sw1r[t0], sw1r[t1], sw1r[t2], sw1r[t3]);
+                    __m512d v_w1i = tw_v2(tw_im(sw1i, t0), tw_im(sw1i, t1), tw_im(sw1i, t2), tw_im(sw1i, t3));
+                    __m512d v_w2r = tw_v2(sw2r[t0], sw2r[t1], sw2r[t2], sw2r[t3]);
+                    __m512d v_w2i = tw_v2(tw_im(sw2i, t0), tw_im(sw2i, t1), tw_im(sw2i, t2), tw_im(sw2i, t3));
+                    __m512d v_w3r = tw_v2(sw3r[t0], sw3r[t1], sw3r[t2], sw3r[t3]);
+                    __m512d v_w3i = tw_v2(tw_im(sw3i, t0), tw_im(sw3i, t1), tw_im(sw3i, t2), tw_im(sw3i, t3));
 
-                auto load2x4 = [&](const double* ptr, size_t off) {
-                    return _mm512_insertf64x4(_mm512_castpd256_pd512(_mm256_loadu_pd(&ptr[j * 16 + off])), _mm256_loadu_pd(&ptr[(j + 1) * 16 + off]), 1);
-                    };
-                __m512d r0 = load2x4(cur_in_re, 0);  __m512d i0v = load2x4(cur_in_im, 0);
-                __m512d r1 = load2x4(cur_in_re, 4);  __m512d i1v = load2x4(cur_in_im, 4);
-                __m512d r2 = load2x4(cur_in_re, 8);  __m512d i2v = load2x4(cur_in_im, 8);
-                __m512d r3 = load2x4(cur_in_re, 12); __m512d i3v = load2x4(cur_in_im, 12);
+                    auto load4x2 = [&](const double* ptr, size_t off) {
+                        __m256d lo = _mm256_insertf128_pd(_mm256_castpd128_pd256(_mm_loadu_pd(&ptr[(j + 0) * 8 + off])), _mm_loadu_pd(&ptr[(j + 1) * 8 + off]), 1);
+                        __m256d hi = _mm256_insertf128_pd(_mm256_castpd128_pd256(_mm_loadu_pd(&ptr[(j + 2) * 8 + off])), _mm_loadu_pd(&ptr[(j + 3) * 8 + off]), 1);
+                        return _mm512_insertf64x4(_mm512_castpd256_pd512(lo), hi, 1);
+                        };
+                    __m512d r0 = load4x2(cur_in_re, 0); __m512d i0v = load4x2(cur_in_im, 0);
+                    __m512d r1 = load4x2(cur_in_re, 2); __m512d i1v = load4x2(cur_in_im, 2);
+                    __m512d r2 = load4x2(cur_in_re, 4); __m512d i2v = load4x2(cur_in_im, 4);
+                    __m512d r3 = load4x2(cur_in_re, 6); __m512d i3v = load4x2(cur_in_im, 6);
 
-                __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
-                __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
-                __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i));
-                __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
-                __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
-                __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
-                __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
-                __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
-                __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
-                __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
-                __m512d d3r = _mm512_mul_pd(s3i, v_sign), d3i = _mm512_mul_pd(s3r, v_neg_sign);
+                    __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
+                    __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
+                    __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i));
+                    __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
+                    __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
+                    __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
+                    __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
+                    __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
+                    __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
+                    __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
+                    __m512d d3r = _mm512_mul_pd(s3i, v_sign), d3i = _mm512_mul_pd(s3r, v_neg_sign);
 
-                size_t o0 = j * 4; size_t o1 = o0 + m * 4; size_t o2 = o1 + m * 4; size_t o3 = o2 + m * 4;
-                _mm512_storeu_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
-                _mm512_storeu_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
-                _mm512_storeu_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
-                _mm512_storeu_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                    size_t o0 = j * 2; size_t o1 = o0 + m * 2; size_t o2 = o1 + m * 2; size_t o3 = o2 + m * 2;
+                    _mm512_storeu_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
+                    _mm512_storeu_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
+                    _mm512_storeu_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
+                    _mm512_storeu_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                }
             }
-        }
-        else if (stride == 2 && m >= 4) {
-            for (size_t j = 0; j < m; j += 4) {
-                auto tw_im = [&](const std::vector<double>& arr, size_t idx) { return inverse ? -arr[idx] : arr[idx]; };
-                auto tw_v2 = [](double t0, double t1, double t2, double t3) {
-                    return _mm512_insertf64x4(_mm512_castpd256_pd512(_mm256_setr_pd(t0, t0, t1, t1)), _mm256_setr_pd(t2, t2, t3, t3), 1);
-                    };
-                size_t t0 = j * 2, t1 = (j + 1) * 2, t2 = (j + 2) * 2, t3 = (j + 3) * 2;
-                __m512d v_w1r = tw_v2(sw1r[t0], sw1r[t1], sw1r[t2], sw1r[t3]);
-                __m512d v_w1i = tw_v2(tw_im(sw1i, t0), tw_im(sw1i, t1), tw_im(sw1i, t2), tw_im(sw1i, t3));
-                __m512d v_w2r = tw_v2(sw2r[t0], sw2r[t1], sw2r[t2], sw2r[t3]);
-                __m512d v_w2i = tw_v2(tw_im(sw2i, t0), tw_im(sw2i, t1), tw_im(sw2i, t2), tw_im(sw2i, t3));
-                __m512d v_w3r = tw_v2(sw3r[t0], sw3r[t1], sw3r[t2], sw3r[t3]);
-                __m512d v_w3i = tw_v2(tw_im(sw3i, t0), tw_im(sw3i, t1), tw_im(sw3i, t2), tw_im(sw3i, t3));
+            else if (stride == 1 && m >= 8) {
+                for (size_t j = 0; j < m; j += 8) {
+                    __m512d v_w1r = _mm512_loadu_pd(&sw1r[j]);
+                    __m512d v_w1i = _mm512_mul_pd(_mm512_loadu_pd(&sw1i[j]), v_sign);
+                    __m512d v_w2r = _mm512_loadu_pd(&sw2r[j]);
+                    __m512d v_w2i = _mm512_mul_pd(_mm512_loadu_pd(&sw2i[j]), v_sign);
+                    __m512d v_w3r = _mm512_loadu_pd(&sw3r[j]);
+                    __m512d v_w3i = _mm512_mul_pd(_mm512_loadu_pd(&sw3i[j]), v_sign);
 
-                auto load4x2 = [&](const double* ptr, size_t off) {
-                    __m256d lo = _mm256_insertf128_pd(_mm256_castpd128_pd256(_mm_loadu_pd(&ptr[(j + 0) * 8 + off])), _mm_loadu_pd(&ptr[(j + 1) * 8 + off]), 1);
-                    __m256d hi = _mm256_insertf128_pd(_mm256_castpd128_pd256(_mm_loadu_pd(&ptr[(j + 2) * 8 + off])), _mm_loadu_pd(&ptr[(j + 3) * 8 + off]), 1);
-                    return _mm512_insertf64x4(_mm512_castpd256_pd512(lo), hi, 1);
-                    };
-                __m512d r0 = load4x2(cur_in_re, 0); __m512d i0v = load4x2(cur_in_im, 0);
-                __m512d r1 = load4x2(cur_in_re, 2); __m512d i1v = load4x2(cur_in_im, 2);
-                __m512d r2 = load4x2(cur_in_re, 4); __m512d i2v = load4x2(cur_in_im, 4);
-                __m512d r3 = load4x2(cur_in_re, 6); __m512d i3v = load4x2(cur_in_im, 6);
+                    auto load8x1 = [&](const double* ptr, size_t off) {
+                        return _mm512_setr_pd(ptr[(j + 0) * 4 + off], ptr[(j + 1) * 4 + off], ptr[(j + 2) * 4 + off], ptr[(j + 3) * 4 + off],
+                            ptr[(j + 4) * 4 + off], ptr[(j + 5) * 4 + off], ptr[(j + 6) * 4 + off], ptr[(j + 7) * 4 + off]);
+                        };
+                    __m512d r0 = load8x1(cur_in_re, 0); __m512d i0v = load8x1(cur_in_im, 0);
+                    __m512d r1 = load8x1(cur_in_re, 1); __m512d i1v = load8x1(cur_in_im, 1);
+                    __m512d r2 = load8x1(cur_in_re, 2); __m512d i2v = load8x1(cur_in_im, 2);
+                    __m512d r3 = load8x1(cur_in_re, 3); __m512d i3v = load8x1(cur_in_im, 3);
 
-                __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
-                __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
-                __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i));
-                __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
-                __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
-                __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
-                __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
-                __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
-                __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
-                __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
-                __m512d d3r = _mm512_mul_pd(s3i, v_sign), d3i = _mm512_mul_pd(s3r, v_neg_sign);
+                    __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
+                    __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
+                    __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i));
+                    __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
+                    __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
+                    __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
+                    __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
+                    __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
+                    __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
+                    __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
+                    __m512d d3r = _mm512_mul_pd(s3i, v_sign), d3i = _mm512_mul_pd(s3r, v_neg_sign);
 
-                size_t o0 = j * 2; size_t o1 = o0 + m * 2; size_t o2 = o1 + m * 2; size_t o3 = o2 + m * 2;
-                _mm512_storeu_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
-                _mm512_storeu_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
-                _mm512_storeu_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
-                _mm512_storeu_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                    size_t o0 = j; size_t o1 = o0 + m; size_t o2 = o1 + m; size_t o3 = o2 + m;
+                    _mm512_storeu_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
+                    _mm512_storeu_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
+                    _mm512_storeu_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
+                    _mm512_storeu_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                }
             }
-        }
-        else if (stride == 1 && m >= 8) {
-            for (size_t j = 0; j < m; j += 8) {
-                __m512d v_w1r = _mm512_loadu_pd(&sw1r[j]);
-                __m512d v_w1i = _mm512_mul_pd(_mm512_loadu_pd(&sw1i[j]), v_sign);
-                __m512d v_w2r = _mm512_loadu_pd(&sw2r[j]);
-                __m512d v_w2i = _mm512_mul_pd(_mm512_loadu_pd(&sw2i[j]), v_sign);
-                __m512d v_w3r = _mm512_loadu_pd(&sw3r[j]);
-                __m512d v_w3i = _mm512_mul_pd(_mm512_loadu_pd(&sw3i[j]), v_sign);
+            else {
+                for (size_t j = 0; j < m; j++) {
+                    size_t tw = j * stride;
+                    double w1r = sw1r[tw], w1i = inverse ? -sw1i[tw] : sw1i[tw];
+                    double w2r = sw2r[tw], w2i = inverse ? -sw2i[tw] : sw2i[tw];
+                    double w3r = sw3r[tw], w3i = inverse ? -sw3i[tw] : sw3i[tw];
 
-                auto load8x1 = [&](const double* ptr, size_t off) {
-                    return _mm512_setr_pd(ptr[(j + 0) * 4 + off], ptr[(j + 1) * 4 + off], ptr[(j + 2) * 4 + off], ptr[(j + 3) * 4 + off],
-                        ptr[(j + 4) * 4 + off], ptr[(j + 5) * 4 + off], ptr[(j + 6) * 4 + off], ptr[(j + 7) * 4 + off]);
-                    };
-                __m512d r0 = load8x1(cur_in_re, 0); __m512d i0v = load8x1(cur_in_im, 0);
-                __m512d r1 = load8x1(cur_in_re, 1); __m512d i1v = load8x1(cur_in_im, 1);
-                __m512d r2 = load8x1(cur_in_re, 2); __m512d i2v = load8x1(cur_in_im, 2);
-                __m512d r3 = load8x1(cur_in_re, 3); __m512d i3v = load8x1(cur_in_im, 3);
-
-                __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
-                __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
-                __m512d t2r = _mm512_fmsub_pd(r2, v_w2r, _mm512_mul_pd(i2v, v_w2i));
-                __m512d t2i = _mm512_fmadd_pd(r2, v_w2i, _mm512_mul_pd(i2v, v_w2r));
-                __m512d t3r = _mm512_fmsub_pd(r3, v_w3r, _mm512_mul_pd(i3v, v_w3i));
-                __m512d t3i = _mm512_fmadd_pd(r3, v_w3i, _mm512_mul_pd(i3v, v_w3r));
-                __m512d s0r = _mm512_add_pd(r0, t2r), s0i = _mm512_add_pd(i0v, t2i);
-                __m512d s1r = _mm512_sub_pd(r0, t2r), s1i = _mm512_sub_pd(i0v, t2i);
-                __m512d s2r = _mm512_add_pd(t1r, t3r), s2i = _mm512_add_pd(t1i, t3i);
-                __m512d s3r = _mm512_sub_pd(t1r, t3r), s3i = _mm512_sub_pd(t1i, t3i);
-                __m512d d3r = _mm512_mul_pd(s3i, v_sign), d3i = _mm512_mul_pd(s3r, v_neg_sign);
-
-                size_t o0 = j; size_t o1 = o0 + m; size_t o2 = o1 + m; size_t o3 = o2 + m;
-                _mm512_storeu_pd(&cur_out_re[o0], _mm512_add_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o0], _mm512_add_pd(s0i, s2i));
-                _mm512_storeu_pd(&cur_out_re[o1], _mm512_add_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o1], _mm512_add_pd(s1i, d3i));
-                _mm512_storeu_pd(&cur_out_re[o2], _mm512_sub_pd(s0r, s2r)); _mm512_storeu_pd(&cur_out_im[o2], _mm512_sub_pd(s0i, s2i));
-                _mm512_storeu_pd(&cur_out_re[o3], _mm512_sub_pd(s1r, d3r)); _mm512_storeu_pd(&cur_out_im[o3], _mm512_sub_pd(s1i, d3i));
+                    for (size_t k = 0; k < stride; ++k) {
+                        size_t i0 = k + j * 4 * stride, i1 = i0 + stride, i2 = i1 + stride, i3 = i2 + stride;
+                        double r0 = cur_in_re[i0], i0v = cur_in_im[i0], r1 = cur_in_re[i1], i1v = cur_in_im[i1];
+                        double r2 = cur_in_re[i2], i2v = cur_in_im[i2], r3 = cur_in_re[i3], i3v = cur_in_im[i3];
+                        double t1r = r1 * w1r - i1v * w1i, t1i = r1 * w1i + i1v * w1r;
+                        double t2r = r2 * w2r - i2v * w2i, t2i = r2 * w2i + i2v * w2r;
+                        double t3r = r3 * w3r - i3v * w3i, t3i = r3 * w3i + i3v * w3r;
+                        double s0r = r0 + t2r, s0i = i0v + t2i, s1r = r0 - t2r, s1i = i0v - t2i;
+                        double s2r = t1r + t3r, s2i = t1i + t3i, s3r = t1r - t3r, s3i = t1i - t3i;
+                        double d3r = s3i * sign, d3i = -s3r * sign;
+                        size_t o0 = k + j * stride, o1 = o0 + m * stride, o2 = o1 + m * stride, o3 = o2 + m * stride;
+                        cur_out_re[o0] = s0r + s2r; cur_out_im[o0] = s0i + s2i;
+                        cur_out_re[o1] = s1r + d3r; cur_out_im[o1] = s1i + d3i;
+                        cur_out_re[o2] = s0r - s2r; cur_out_im[o2] = s0i - s2i;
+                        cur_out_re[o3] = s1r - d3r; cur_out_im[o3] = s1i - d3i;
+                    }
+                }
             }
+
+            m <<= 2; // Zamykamy skok mnożąc przez 4
         }
-        else {
+        // ===============================================================
+        // KROK RADIX-2 (Dla "resztek" - nieparzystych potęg np. 131072)
+        // ===============================================================
+        else if (remaining == 2) {
+            size_t stride = 1;
             for (size_t j = 0; j < m; j++) {
-                size_t tw = j * stride;
-                double w1r = sw1r[tw], w1i = inverse ? -sw1i[tw] : sw1i[tw];
-                double w2r = sw2r[tw], w2i = inverse ? -sw2i[tw] : sw2i[tw];
-                double w3r = sw3r[tw], w3i = inverse ? -sw3i[tw] : sw3i[tw];
+                size_t tw = j * stride; // Tutaj stride to zawsze 1, więc tw = j
 
-                for (size_t k = 0; k < stride; ++k) {
-                    size_t i0 = k + j * 4 * stride, i1 = i0 + stride, i2 = i1 + stride, i3 = i2 + stride;
-                    double r0 = cur_in_re[i0], i0v = cur_in_im[i0], r1 = cur_in_re[i1], i1v = cur_in_im[i1];
-                    double r2 = cur_in_re[i2], i2v = cur_in_im[i2], r3 = cur_in_re[i3], i3v = cur_in_im[i3];
-                    double t1r = r1 * w1r - i1v * w1i, t1i = r1 * w1i + i1v * w1r;
-                    double t2r = r2 * w2r - i2v * w2i, t2i = r2 * w2i + i2v * w2r;
-                    double t3r = r3 * w3r - i3v * w3i, t3i = r3 * w3i + i3v * w3r;
-                    double s0r = r0 + t2r, s0i = i0v + t2i, s1r = r0 - t2r, s1i = i0v - t2i;
-                    double s2r = t1r + t3r, s2i = t1i + t3i, s3r = t1r - t3r, s3i = t1i - t3i;
-                    double d3r = s3i * sign, d3i = -s3r * sign;
-                    size_t o0 = k + j * stride, o1 = o0 + m * stride, o2 = o1 + m * stride, o3 = o2 + m * stride;
-                    cur_out_re[o0] = s0r + s2r; cur_out_im[o0] = s0i + s2i;
-                    cur_out_re[o1] = s1r + d3r; cur_out_im[o1] = s1i + d3i;
-                    cur_out_re[o2] = s0r - s2r; cur_out_im[o2] = s0i - s2i;
-                    cur_out_re[o3] = s1r - d3r; cur_out_im[o3] = s1i - d3i;
-                }
+                // Używamy wag z tablicy w1r/w1i, w2 i w3 ignorujemy dla Radix-2
+                double w1r = sw1r[tw];
+                double w1i = inverse ? -sw1i[tw] : sw1i[tw];
+
+                // W Radix-2 skaczemy co 2 (stride to zaledwie odstęp w wejściu)
+                size_t i0 = j * 2;
+                size_t i1 = i0 + 1;
+
+                double r0 = cur_in_re[i0], i0v = cur_in_im[i0];
+                double r1 = cur_in_re[i1], i1v = cur_in_im[i1];
+
+                // Matematyka motylkowa Radix-2
+                double t1r = r1 * w1r - i1v * w1i;
+                double t1i = r1 * w1i + i1v * w1r;
+
+                // Zapisujemy z przesunięciem 'm' (połowa paczki Radix-2)
+                size_t o0 = j;
+                size_t o1 = j + m;
+
+                cur_out_re[o0] = r0 + t1r;
+                cur_out_im[o0] = i0v + t1i;
+                cur_out_re[o1] = r0 - t1r;
+                cur_out_im[o1] = i0v - t1i;
             }
+            m <<= 1; // Zamykamy krok Radix-2 (mnożymy przez 2)
         }
+
         std::swap(cur_in_re, cur_out_re);
         std::swap(cur_in_im, cur_out_im);
     }
+
     return cur_in_re;
 }
 
@@ -1269,14 +1351,22 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
 // ---------------------------------------------------------
 void fft_bailey_2d(FFTContext& ctx, bool inverse) {
     size_t N = ctx.fft_len;
-    size_t n1 = 1, n2 = 1, temp = N;
-    while (temp > 1) {
-        if (n1 <= n2) n1 *= 4;
-        else n2 *= 4;
-        temp /= 4;
+    unsigned p = 0;
+    size_t temp_for_p = N;
+    while (temp_for_p > 1) { temp_for_p >>= 1; p++; }
+
+    size_t n1, n2;
+    if (p % 2 == 0) {
+        n1 = 1ULL << (p / 2);
+        n2 = 1ULL << (p / 2);
+    }
+    else {
+        n1 = 1ULL << ((p / 2) + 1); // np. 512
+        n2 = 1ULL << (p / 2);       // np. 256
     }
 
-    if (ctx.r_w1r.empty()) {
+    // INICJALIZACJA WAG TYLKO RAZ (Lazy Initialization zabezpieczona rozmiarem)
+    if (ctx.r_w1r.size() != n1) {
         ctx.r_w1r.assign(n1, 0); ctx.r_w1i.assign(n1, 0);
         ctx.r_w2r.assign(n1, 0); ctx.r_w2i.assign(n1, 0);
         ctx.r_w3r.assign(n1, 0); ctx.r_w3i.assign(n1, 0);
@@ -1289,7 +1379,9 @@ void fft_bailey_2d(FFTContext& ctx, bool inverse) {
             ctx.r_w2r[i] = ctx.w2_re[idx]; ctx.r_w2i[i] = ctx.w2_im[idx];
             ctx.r_w3r[i] = ctx.w3_re[idx]; ctx.r_w3i[i] = ctx.w3_im[idx];
         }
+    }
 
+    if (ctx.c_w1r.size() != n2) {
         ctx.c_w1r.assign(n2, 0); ctx.c_w1i.assign(n2, 0);
         ctx.c_w2r.assign(n2, 0); ctx.c_w2i.assign(n2, 0);
         ctx.c_w3r.assign(n2, 0); ctx.c_w3i.assign(n2, 0);
@@ -1562,18 +1654,14 @@ void fft_square_karatsuba(FFTContext& ctx, uint64_t* v, size_t n_limbs, unsigned
         }
 
         if (is_pure_power_of_two) {
-            unsigned p = 0; size_t temp = ctx.fft_len;
-            while (temp > 1) { temp >>= 1; p++; }
-            if (p % 2 == 0) fft_bailey_2d(ctx, inverse);
-            else {
-                double* res_re = fft_stockham_radix8(ctx, inverse);
-                if (res_re != ctx.re) {
-                    std::swap(ctx.re, ctx.re2);
-                    std::swap(ctx.im, ctx.im2);
-                }
-            }
+            // =================================================================
+            // Uwolniony Bailey 2D: Trawi teraz parzyste (np. 18) i nieparzyste (17) 
+            // potęgi dwójki w całości w Cache L1!
+            // =================================================================
+            fft_bailey_2d(ctx, inverse);
         }
         else {
+            // Zabezpieczenie dla nietypowych długości (np. Radix-3, Radix-5)
             fft_mixed_radix_execute(ctx, ctx.factor_plan, inverse);
         }
 
@@ -1661,18 +1749,14 @@ void fft_mul_karatsuba(FFTContext& ctx, uint64_t* out, const uint64_t* X, const 
         }
 
         if (is_pure_power_of_two) {
-            unsigned p = 0; size_t temp = ctx.fft_len;
-            while (temp > 1) { temp >>= 1; p++; }
-            if (p % 2 == 0) fft_bailey_2d(ctx, inverse);
-            else {
-                double* res_re = fft_stockham_radix8(ctx, inverse);
-                if (res_re != ctx.re) {
-                    std::swap(ctx.re, ctx.re2);
-                    std::swap(ctx.im, ctx.im2);
-                }
-            }
+            // =================================================================
+            // Uwolniony Bailey 2D: Trawi teraz parzyste (np. 18) i nieparzyste (17) 
+            // potęgi dwójki w całości w Cache L1!
+            // =================================================================
+            fft_bailey_2d(ctx, inverse);
         }
         else {
+            // Zabezpieczenie dla nietypowych długości (np. Radix-3, Radix-5)
             fft_mixed_radix_execute(ctx, ctx.factor_plan, inverse);
         }
 

@@ -469,7 +469,6 @@ bool execute_proth_test_fft(uint64_t k, unsigned n, uint64_t* limbs, FFTContext&
     if (!gear_reported) {
         std::lock_guard<std::mutex> lock(g_io_mutex);
 
-
         bool is_pure_power_of_two = true;
         for (size_t f : ctx.factor_plan.factors) {
             if (f != 2) {
@@ -483,12 +482,8 @@ bool execute_proth_test_fft(uint64_t k, unsigned n, uint64_t* limbs, FFTContext&
             size_t temp = ctx.fft_len;
             while (temp > 1) { temp >>= 1; p++; }
 
-            if (p % 2 == 0) {
-                std::cout << "  [HYBRID ENGINE] Selected: Bailey 2D (Radix-4) [FFT_Len = 2^" << p << " = " << ctx.fft_len << "]\n";
-            }
-            else {
-                std::cout << "  [HYBRID ENGINE] Selected: Stockham 1D (Radix-8) [FFT_Len = 2^" << p << " = " << ctx.fft_len << "]\n";
-            }
+            // BEZ WARUNKU PARZYSTOŚCI! Bailey obsługuje teraz wszystkie potęgi dwójki.
+            std::cout << "  [HYBRID ENGINE] Selected: Unified Bailey 2D (Radix-4/2) [FFT_Len = 2^" << p << " = " << ctx.fft_len << "]\n";
         }
         else {
             std::cout << "  [HYBRID ENGINE] Selected: Mixed-Radix 2D (Factors 2/3/5) [FFT_Len = " << ctx.fft_len << "]\n";
