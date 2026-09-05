@@ -20,7 +20,9 @@ Version ProthLogic v5
 5. Testing Factorizer and Mixed-Radix Architecture: Bailey2D and Radix8 working on FFT Len $2^n$, Factorizer allows me to use an array size that is, for example, a combination of factors 2, 3, and 5, for now is much slower than Bailey2D with radix4 and Radix8.
 6. Batch mode: I noticed that testing in batch mode runs threads sequentially, and autoconfig for larger numbers allows testing of one number due to a cache conflict, while the AMD Ryzen 9 9900X3D processor architecture allows testing of two numbers simultaneously, assigning them to separate L3 CCD0 and CCD1 chipsets. With the taskset -c 0-4/6-10 command. The next step will be to rebuild the batch mode and autoconfig file for processor analysis and adapt the test to separate L3 memories if possible without data conflicts and clogging the RAM bus.
 7. Artifacts from other versions remain in the code for analysis and comparison purposes.
-8. The sieve only used raw values ​​of $k$ per line, and the community requires an interoperable ABC format ($k \cdot b^n + c$)
+8. The sieve only used raw values ​​of $k$ per line, and the community requires an interoperable ABC format ($k \cdot b^n + c$). done
+9. Entering residuals from composite results for maintaining verification records. (COMPOSITE (a=7 RES64: 0xC044C688349D2382)) All that remains is to save Composite results to the results.txt file
+
 
 
 
