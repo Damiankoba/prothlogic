@@ -1305,44 +1305,44 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
             m <<= 2; 
         }
         // ===============================================================
-        // W PEŁNI ZWEKTORYZOWANY KROK RADIX-2 (Kuloodporny AVX-512)
+        // RADIX-2 
         // ===============================================================
         else if (remaining == 2) {
-            // Używamy setr_epi64 (naturalna kolejność elementów: 0, 1, 2... 7)
-            // To gwarantuje brak błędów sprzętowych przy instrukcji permutex2var!
+            // We use setr_epi64 (natural order of elements: 0, 1, 2... 7)
+// This guarantees no hardware errors with the permutex2var instruction!
             const __m512i idx_even = _mm512_setr_epi64(0, 2, 4, 6, 8, 10, 12, 14);
             const __m512i idx_odd = _mm512_setr_epi64(1, 3, 5, 7, 9, 11, 13, 15);
 
-            // Definiujemy mnożnik znaku poza pętlą dla IFFT
+            // We define the sign multiplier outside the loop for IFFT
             double sign_inv = inverse ? -1.0 : 1.0;
             const __m512d v_sign_inv = _mm512_set1_pd(sign_inv);
 
             size_t j = 0;
             for (; j + 7 < m; j += 8) {
-                // Płynny odczyt 8 wag naraz
+                // Smooth reading of 8 scales at once
                 __m512d v_w1r = _mm512_loadu_pd(&sw1r[j]);
                 __m512d v_w1i = _mm512_mul_pd(_mm512_loadu_pd(&sw1i[j]), v_sign_inv);
 
                 size_t i0 = j * 2;
 
-                // Prefetch - ostrzegamy Cache L1/L2 z odpowiednim wyprzedzeniem
+                // Prefetch - we warn the L1/L2 cache well in advance
                 size_t prefetch_offset = 128;
                 _mm_prefetch((const char*)&cur_in_re[i0 + prefetch_offset], _MM_HINT_NTA);
                 _mm_prefetch((const char*)&cur_in_im[i0 + prefetch_offset], _MM_HINT_NTA);
 
-                // Ładowanie 16 elementów wejściowych naraz 
+                // Loading 16 inputs at once 
                 __m512d re_a = _mm512_loadu_pd(&cur_in_re[i0]);
                 __m512d re_b = _mm512_loadu_pd(&cur_in_re[i0 + 8]);
                 __m512d im_a = _mm512_loadu_pd(&cur_in_im[i0]);
                 __m512d im_b = _mm512_loadu_pd(&cur_in_im[i0 + 8]);
 
-                // Błyskawiczny, jednoczesny De-przeplot!
+                
                 __m512d r0 = _mm512_permutex2var_pd(re_a, idx_even, re_b);
                 __m512d r1 = _mm512_permutex2var_pd(re_a, idx_odd, re_b);
                 __m512d i0v = _mm512_permutex2var_pd(im_a, idx_even, im_b);
                 __m512d i1v = _mm512_permutex2var_pd(im_a, idx_odd, im_b);
 
-                // Czysta wektorowa matematyka motylkowa
+                // Pure Vector Butterfly Mathematics
                 __m512d t1r = _mm512_fmsub_pd(r1, v_w1r, _mm512_mul_pd(i1v, v_w1i));
                 __m512d t1i = _mm512_fmadd_pd(r1, v_w1i, _mm512_mul_pd(i1v, v_w1r));
 
@@ -1351,7 +1351,7 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
                 __m512d o1_re = _mm512_sub_pd(r0, t1r);
                 __m512d o1_im = _mm512_sub_pd(i0v, t1i);
 
-                // Zapisy do RAM-u
+                // RAM writes
                 size_t o0 = j;
                 size_t o1 = j + m;
                 _mm512_storeu_pd(&cur_out_re[o0], o0_re);
@@ -1360,7 +1360,7 @@ double* fft_stockham_radix4_blocked(double* in_re, double* in_im, double* out_re
                 _mm512_storeu_pd(&cur_out_im[o1], o1_im);
             }
 
-            // Ogon pętli (fallback skalarowy w razie resztek)
+            // Loop tail (scalar fallback in case of leftovers)
             for (; j < m; j++) {
                 double w1r = sw1r[j];
                 double w1i = sw1i[j] * sign_inv;
