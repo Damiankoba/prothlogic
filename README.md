@@ -29,7 +29,7 @@ Version ProthLogic v5
 7. Artifacts from other versions remain in the code for analysis and comparison purposes.
 8. The sieve only used raw values ​​of $k$ per line, and the community requires an interoperable ABC format ($k \cdot b^n + c$). done
 9. Entering residuals from composite results for maintaining verification records. (COMPOSITE (a=7 RES64: 0xC044C688349D2382)) All that remains is to save Composite results to the composite.txt file. done
-10. Radix-8 supplemented with Prefetching, blocking, and the introduction of _mm512_stream_pd cache write instead of _mm512_store_pd.
+10. Testing Radix-8 supplemented with Prefetching, blocking, and the introduction of _mm512_stream_pd cache write instead of _mm512_store_pd.
 
 
 -----------------
