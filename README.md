@@ -21,7 +21,7 @@ Our development focuses heavily on high-performance computing and low-level hard
 
 Version ProthLogic v5
 1. Continuing to optimize time ms/iter, actual for tested N=3322774 time is 1.35 ms/iter and for N=3099097 time is 1.40 ms/iter. both numbers are tested same time with taskset-c 0-5/6-10 and working with 4 threads each test.
-2. Implementation in progress: radix for AVX2(very slow for now)
+2. Implementation in progress: radix for AVX2(very slow for now, not supported by program yet)
 3. Operation Fusion (Eliminate unnecessary RAM reads) new function unpack_karatsuba_overlap_add_vbmi
 4. Testing FMA instruction interleaving nn functions like pass_radix5_seq or fft_stockham_radix4_blocked for Bailey2D
 5. Testing Factorizer and Mixed-Radix Architecture: Bailey2D and Radix8 working on FFT Len $2^n$, Factorizer allows me to use an array size that is, for example, a combination of factors 2, 3, and 5, for now is much slower than Bailey2D with radix4 and Radix8 and radix 2 implementation for Bailey 2D engine.
