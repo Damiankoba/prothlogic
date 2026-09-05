@@ -28,9 +28,8 @@ Version ProthLogic v5
 6. Batch mode: I noticed that testing in batch mode runs threads sequentially, and autoconfig for larger numbers allows testing of one number due to a cache conflict, while the AMD Ryzen 9 9900X3D processor architecture allows testing of two numbers simultaneously, assigning them to separate L3 CCD0 and CCD1 chipsets. With the taskset -c 0-4/6-10 command. The next step will be to rebuild the batch mode and autoconfig file for processor analysis and adapt the test to separate L3 memories if possible without data conflicts and clogging the RAM bus.
 7. Artifacts from other versions remain in the code for analysis and comparison purposes.
 8. The sieve only used raw values ​​of $k$ per line, and the community requires an interoperable ABC format ($k \cdot b^n + c$). done
-9. Entering residuals from composite results for maintaining verification records. (COMPOSITE (a=7 RES64: 0xC044C688349D2382)) All that remains is to save Composite results to the composite.txt file
-
-
+9. Entering residuals from composite results for maintaining verification records. (COMPOSITE (a=7 RES64: 0xC044C688349D2382)) All that remains is to save Composite results to the composite.txt file. done
+10. Radix-8 supplemented with Prefetching, blocking, and the introduction of _mm512_stream_pd cache write instead of _mm512_store_pd.
 
 
 -----------------
