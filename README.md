@@ -8,8 +8,9 @@ The included headers (gmp.h, gmpxx.h) are part of the MPIR Library and are distr
 
 I am an independent the creator of ProthLogic, an open-source mathematical software program designed to test the primality of Proth numbers using both CPU and GPU resources.
 
-What I building
-My development focuses heavily on high-performance computing and low-level hardware optimizations. I write code that utilizes CPU cache retention, OpenMP multi-threading, and AVX-512 vector instructions to push modern hardware to its absolute limits and accelerate complex mathematical calculations.
+What I'm building
+Our development focuses heavily on high-performance computing and low-level hardware optimizations. I write code that utilizes CPU cache retention, OpenMP multi-threading, and AVX-512 vector instructions to push modern hardware to its absolute limits and accelerate complex mathematical calculations.
+
 ----------------
 
 Version ProthLogic v5
