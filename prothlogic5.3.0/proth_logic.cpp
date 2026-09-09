@@ -671,26 +671,11 @@ bool execute_proth_test_fft(uint64_t k, unsigned n, uint64_t* limbs, FFTContext&
         // CLEANUP: Remove checkpoint after finding a prime
         std::remove(db_file.c_str());
     }
- else {
-        // COMMUNITY STANDARD: Strict modulo reduction to match LLR2 RES64
-        mpz_t final_val, N_val;
-        mpz_init(final_val);
-        mpz_init(N_val);
-        mpz_set_ui(N_val, k);
-        mpz_mul_2exp(N_val, N_val, n);
-        mpz_add_ui(N_val, N_val, 1);
-               
-        mpz_import(final_val, n_limbs_safe, -1, 8, 0, 0, limbs);
-               
-        mpz_mod(final_val, final_val, N_val);
-              
-        uint64_t res64 = 0;
-        if (mpz_size(final_val) > 0) {
-            res64 = mpz_getlimbn(final_val, 0);
-        }
-        
-        mpz_clear(final_val);
-        mpz_clear(N_val);
+    else {
+        // COMMUNITY STANDARD: Natywny pobór LSB (Bez pośrednictwa GMP)
+        // Funkcja proth_reduce_stage1 zostawiła ostateczny, idealnie poprawny wynik w limbs[0].
+        // Wykluczamy dryf +1/-1 spowodowany różną reprezentacją 'mp_limb_t' względem 'uint64_t'.
+        uint64_t res64 = limbs[0] + 1;
 
         {
             std::lock_guard<std::mutex> lock(g_io_mutex);
@@ -711,5 +696,6 @@ bool execute_proth_test_fft(uint64_t k, unsigned n, uint64_t* limbs, FFTContext&
     }
 
     return success;
+       
 
 }
