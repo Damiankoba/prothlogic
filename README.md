@@ -17,19 +17,24 @@ What I'm building
 Our development focuses heavily on high-performance computing and low-level hardware optimizations. I write code that utilizes CPU cache retention, OpenMP multi-threading, and AVX-512 vector instructions to push modern hardware to its absolute limits and accelerate complex mathematical calculations.
 
 
+
+Version Prothlogic v5.7
+
+
+
 ----------------
 
 Version ProthLogic v5
-1. Continuing to optimize time ms/iter, actual for tested N=3322774 time is 1.35 ms/iter and for N=3099097 time is 1.40 ms/iter. both numbers are tested same time with taskset-c 0-5/6-10 and working with 4 threads each test.
+1. Continuing to optimize time ms/iter, actual for tested N=3322774 time is 1.35 ms/iter and for N=3099097 time is 1.40 ms/iter. both numbers are tested same time with taskset-c 0-5/6-10 and working with 4 threads each test. done
 2. Implementation in progress: radix for AVX2(very slow for now, not supported by program yet)
-3. Operation Fusion (Eliminate unnecessary RAM reads) new function unpack_karatsuba_overlap_add_vbmi
-4. Testing FMA instruction interleaving nn functions like pass_radix5_seq or fft_stockham_radix4_blocked for Bailey2D
-5. Testing Factorizer and Mixed-Radix Architecture: Bailey2D and Radix8 working on FFT Len $2^n$, Factorizer allows me to use an array size that is, for example, a combination of factors 2, 3, and 5, for now is much slower than Bailey2D with radix4 and Radix8 and radix 2 implementation for Bailey 2D engine.
-6. Batch mode: I noticed that testing in batch mode runs threads sequentially, and autoconfig for larger numbers allows testing of one number due to a cache conflict, while the AMD Ryzen 9 9900X3D processor architecture allows testing of two numbers simultaneously, assigning them to separate L3 CCD0 and CCD1 chiplet. With the taskset -c 0-4/6-10 command. The next step will be to rebuild the batch mode and autoconfig file for processor analysis and adapt the test to separate L3 memories if possible without data conflicts and clogging the RAM bus.
-7. Artifacts from other versions remain in the code for analysis and comparison purposes.
+3. Operation Fusion (Eliminate unnecessary RAM reads) new function unpack_karatsuba_overlap_add_vbmi done
+4. Testing FMA instruction interleaving nn functions like pass_radix5_seq or fft_stockham_radix4_blocked for Bailey2D 
+5. Testing Factorizer and Mixed-Radix Architecture: Bailey2D and Radix8 working on FFT Len $2^n$, Factorizer allows me to use an array size that is, for example, a combination of factors 2, 3, and 5, for now is much slower than Bailey2D with radix4 and Radix8 and radix 2 implementation for Bailey 2D engine. done
+6. Batch mode: I noticed that testing in batch mode runs threads sequentially, and autoconfig for larger numbers allows testing of one number due to a cache conflict, while the AMD Ryzen 9 9900X3D processor architecture allows testing of two numbers simultaneously, assigning them to separate L3 CCD0 and CCD1 chiplet. With the taskset -c 0-4/6-10 command. The next step will be to rebuild the batch mode and autoconfig file for processor analysis and adapt the test to separate L3 memories if possible without data conflicts and clogging the RAM bus. 
+7. Artifacts from other versions remain in the code for analysis and comparison purposes. done
 8. The sieve only used raw values ​​of $k$ per line, and the community requires an interoperable ABC format ($k \cdot b^n + c$). done
 9. Entering residuals from composite results for maintaining verification records. (COMPOSITE (a=7 RES64: 0xC044C688349D2382)) All that remains is to save Composite results to the composite.txt file. done
-10. Testing Radix-8 supplemented with Prefetching, blocking, and the introduction of _mm512_stream_pd cache write instead of _mm512_store_pd.
+10. Testing Radix-8 supplemented with Prefetching, blocking, and the introduction of _mm512_stream_pd cache write instead of _mm512_store_pd. done
 
 
 -----------------
