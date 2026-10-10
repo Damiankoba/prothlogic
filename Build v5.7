@@ -1,0 +1,28 @@
+Verify CPU Hardware
+ProthLogic5.7 is optimized for CPU with AVX-512 support only.
+
+compile file ./build.sh [profile] [warn]
+./build.sh profile  - diagnostic tools
+./build.sh warn - wornings while compilation process
+
+Run test.
+In Prothlogic5.7 i add new flags to cli, i made some changes to sive 
+
+Flags
+--n           N number
+--n-start     first N value, flag is used for fixed-k sieve
+--n-end       last N value for fixed-k sieve
+--k-start     first K to start sieve fixed-N sieve or single number test
+--k-end       last K for fixed-N sieve, this value is not necessery for single number test 
+--pstart      min 50000000000
+--pmax        default p-50000000000
+--workers     number of threads per candidat
+--max-workers number of workers used to batch mode
+--report      in %, default 25%, 0=only result, e.g [STEP] k=843 -> 25% | Max Err: 2.93e-03
+--out-primes  out primes to file, default autosave is to primes.txt, put your file name
+--out-sieve   out candidates after presieve, put your file name
+--in-file     loading candidates to continue presiesieve, or test from file
+--sieve-only  abord before FFT proth test
+--sparse-sieve 
+--detail      flag acivates detiles of actual test 
+
