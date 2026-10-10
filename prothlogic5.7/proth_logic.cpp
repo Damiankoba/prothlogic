@@ -84,10 +84,9 @@ static void batch_print(bool force) {
 }
 
 void batch_note_done(bool prime) {
-    if (!g_batch_agg) return;
     if (prime) ++g_b_primes;
-    ++g_b_done;
-    batch_print(true);
+    ++g_b_done;   // also counted one-at-a-time: the progress line shows [current/total]
+    if (g_batch_agg) batch_print(true);
 }
 
 // Human-readable duration: "2d 03h", "1h 23m", "12m 05s", "45s"
@@ -715,16 +714,21 @@ bool execute_proth_test_fft(uint64_t k, unsigned n, uint64_t* limbs, FFTContext&
         const double done_here = (double)i_now - (double)recovered_i;   // iterations in this run (after a resume)
         const double ms_it = (done_here > 0) ? el * 1000.0 / done_here : 0.0;
         const double eta = ms_it * ((double)(n - 1) - (double)i_now) / 1000.0;
+        // Several candidates one at a time: show which one is running ([current/total] k*2^n+1)
+        const bool multi = (g_batch_total > 1);
         std::ostringstream ps;
-        ps << std::fixed << std::setprecision(2) << (100.0 * (double)i_now / (double)(n - 1)) << "% | iter "
-           << i_now << " / " << (n - 1) << " | " << ms_it << " ms/iter | ETA " << fmt_duration(eta);
+        if (multi) ps << "[" << (g_b_done.load() + 1) << "/" << g_batch_total << "] ";
+        if (multi || !g_progress_tty) ps << k << "*2^" << n << "+1 | ";   // one candidate in a terminal: the header already names it
+        ps << std::fixed << std::setprecision(2) << (100.0 * (double)i_now / (double)(n - 1)) << "% | iter " << i_now;
+        if (!multi) ps << " / " << (n - 1);   // shorter line with the candidate prefix (fits the terminal width)
+        ps << " | " << ms_it << " ms/iter | ETA " << fmt_duration(eta);
         std::lock_guard<std::mutex> lock(g_io_mutex);
         if (g_progress_tty) {
             std::cout << "\r\033[K  " << ps.str() << std::flush;
             g_live_line_active = true;
         }
         else {
-            std::cout << "    " << k << "*2^" << n << "+1: " << ps.str() << std::endl;
+            std::cout << "    " << ps.str() << std::endl;
         }
     };
     auto progress_tick = [&](unsigned i_now) {
