@@ -1,5 +1,7 @@
 Prime Numbers discovered by ProthLogic
 
+
+30035095*2^995860+1 is prime! (299792 decimal digits) Time : 42.097 sec. (a=3)
 152691 * 2^426497 + 1 (a=5)
 155871 * 2^426497 + 1 (a=5)
 284049 * 2^426497 + 1 (a=7)
