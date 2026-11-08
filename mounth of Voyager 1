@@ -1,0 +1,154 @@
+
+
+
+
+---------------
+N= 30 to 100000
+---------------
+(main) root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file light_day_voyager.txt --primes voyager_primes.txt --gpu --workers 10 --pin
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[156..99996]  Fixed K=25902068371
+  Workers (candidates at once): 10  |  Threads per candidate: 1
+
+[SYSTEM] Loaded 2493 N-candidates from light_day_voyager.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 2493 candidate(s) in 2493 task(s), 10 at once x 1 thread(s) + GPU
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)
+[PIN] 10 worker(s) x 1 thread(s) pinned to CPUs 0-4,6-10
+[!] FOUND PRIME: 25902068371*2^900+1 is prime! (282 decimal digits) Time : 0.037 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^240+1 is prime! (83 decimal digits) Time : 0.010 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^172+1 is prime! (63 decimal digits) Time : 0.007 sec. (a=3)
+  Batch: 202 / 2493 (8.1%) | primes: 3 | elapsed 3s | ETA 7m 14s^C
+Continue...
+(main) root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file light_day_voyager.txt --primes voyager_primes.txt --workers 10 --pin
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[156..99996]  Fixed K=25902068371
+  Workers (candidates at once): 10  |  Threads per candidate: 1
+
+[SYSTEM] Loaded 2493 N-candidates from light_day_voyager.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+[RESUME] 203 candidate(s) already in composite.txt / primes.txt - skipped, 2290 left
+
+  Starting Proth Test: 2290 candidate(s) in 2290 task(s), 10 at once x 1 thread(s)
+[PIN] 10 worker(s) x 1 thread(s) pinned to CPUs 0-4,6-10
+
+[!] FOUND PRIME: 25902068371*2^10728+1 is prime! (3240 decimal digits) Time : 0.355 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^12744+1 is prime! (3847 decimal digits) Time : 0.409 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^16068+1 is prime! (4848 decimal digits) Time : 0.529 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^17812+1 is prime! (5373 decimal digits) Time : 0.568 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^37836+1 is prime! (11401 decimal digits) Time : 1.184 sec. (a=3)
+
+[!] FOUND PRIME: 25902068371*2^42904+1 is prime! (12926 decimal digits) Time : 1.394 sec. (a=3)
+  Batch: 2290 / 2290 (100.0%) | primes: 6 | elapsed 6m 40s
+
+Calculations finished.
+Total computation time: 399.86 s
+
+---------------
+N= 100001 to 200000
+---------------
+
+(main) root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file light_day_voyager_n_100001_200000.txt --workers 10 --pin --gpu
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[100048..199992]  Fixed K=25902068371
+  Workers (candidates at once): 10  |  Threads per candidate: 1
+
+[SYSTEM] Loaded 2536 N-candidates from light_day_voyager_n_100001_200000.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+[RESUME] 79 candidate(s) already in composite.txt / primes.txt - skipped, 2457 left
+
+  Starting Proth Test: 2457 candidate(s) in 2457 task(s), 10 at once x 1 thread(s) + GPU
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)
+[PIN] 10 worker(s) x 1 thread(s) pinned to CPUs 0-4,6-10
+  [GPU] plan: NTT 2^14 x 2 primes, 13-bit digits, 4 carry passes
+
+[!] FOUND PRIME: 25902068371*2^103860+1 is prime! (31276 decimal digits) Time : 2.044 sec. (a=3)
+  [GPU] plan: NTT 2^14 x 2 primes, 14-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^14 x 2 primes, 15-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^14 x 2 primes, 16-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^14 x 2 primes, 17-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^14 x 2 primes, 18-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^14 x 2 primes, 19-bit digits, 3 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 10-bit digits, 5 carry passes
+
+[!] FOUND PRIME: 25902068371*2^160840+1 is prime! (48429 decimal digits) Time : 2.815 sec. (a=3)
+  [GPU] plan: NTT 2^15 x 2 primes, 11-bit digits, 5 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 12-bit digits, 5 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 13-bit digits, 4 carry passes
+  Batch: 2457 / 2457 (100.0%) | primes: 2 | elapsed 26m 09s
+
+Calculations finished.
+Total computation time: 1568.69 s
+
+---------------
+N= 200001 to 300000
+---------------
+
+(main) root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file light_day_voyager_n_200001_300000.txt --workers 12 --pin --gpu
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[200020..299952]  Fixed K=25902068371
+  Workers (candidates at once): 12  |  Threads per candidate: 1
+
+[SYSTEM] Loaded 2440 N-candidates from light_day_voyager_n_200001_300000.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 2440 candidate(s) in 2440 task(s), 12 at once x 1 thread(s) + GPU
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)
+[PIN] 12 worker(s) x 1 thread(s) pinned to CPUs 0-11
+  [GPU] plan: NTT 2^15 x 2 primes, 13-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 14-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 15-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 16-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 17-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 18-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^15 x 2 primes, 19-bit digits, 3 carry passes
+
+[!] FOUND PRIME: 25902068371*2^298972+1 is prime! (90010 decimal digits) Time : 24.544 sec. (a=3)
+  Batch: 2440 / 2440 (100.0%) | primes: 1 | elapsed 40m 29s
+
+Calculations finished.
+Total computation time: 2429.11 s
+
+---------------
+N= 300001 to 400000
+---------------
+(main) root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file light_day_voyager_n_300001_400000.txt --workers 12 --pin --gpu
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[300024..399948]  Fixed K=25902068371
+  Workers (candidates at once): 12  |  Threads per candidate: 1
+
+[SYSTEM] Loaded 2269 N-candidates from light_day_voyager_n_300001_400000.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+[RESUME] 24 candidate(s) already in composite.txt / primes.txt - skipped, 2245 left
+
+  Starting Proth Test: 2245 candidate(s) in 2245 task(s), 12 at once x 1 thread(s) + GPU
+[IBDWT] autotest MISMATCH (computation error): FFT 16384 (32768 digits of ~12.21 bits), k=25902068371, max err 0.25 (reference: GMP)
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)
+[PIN] 12 worker(s) x 1 thread(s) pinned to CPUs 0-11
+[CHECKPOINT] check_k25902068371_n301372.bin: stored with 4710 limbs, now 6528 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n301360.bin: stored with 4710 limbs, now 6528 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n300660.bin: stored with 6528 limbs, now 4699 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n300624.bin: stored with 6528 limbs, now 4699 (other FFT length) - converted
+  [GPU] plan: NTT 2^15 x 2 primes, 19-bit digits, 3 carry passes
+  [GPU] plan: NTT 2^16 x 2 primes, 10-bit digits, 5 carry passes
+  [GPU] plan: NTT 2^16 x 2 primes, 11-bit digits, 5 carry passes
+
+[!] FOUND PRIME: 25902068371*2^336688+1 is prime! (101364 decimal digits) Time : 47.600 sec. (a=3)
+  [GPU] plan: NTT 2^16 x 2 primes, 12-bit digits, 5 carry passes
+  [GPU] plan: NTT 2^16 x 2 primes, 13-bit digits, 4 carry passes
+  Batch: 2245 / 2245 (100.0%) | primes: 1 | elapsed 1h 20m
+
+Calculations finished.
+Total computation time: 4810.26 s
