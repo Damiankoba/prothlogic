@@ -1,5 +1,19 @@
 
-
+25902068371*2^172+1 is prime! (63 decimal digits) Time : 0.007111 sec. (a=3)
+25902068371*2^240+1 is prime! (83 decimal digits) Time : 0.009691 sec. (a=3)
+25902068371*2^900+1 is prime! (282 decimal digits) Time : 0.036828 sec. (a=3)
+25902068371*2^10728+1 is prime! (3240 decimal digits) Time : 0.355090 sec. (a=3)
+25902068371*2^12744+1 is prime! (3847 decimal digits) Time : 0.408740 sec. (a=3)
+25902068371*2^16068+1 is prime! (4848 decimal digits) Time : 0.529481 sec. (a=3)
+25902068371*2^17812+1 is prime! (5373 decimal digits) Time : 0.567913 sec. (a=3)
+25902068371*2^37836+1 is prime! (11401 decimal digits) Time : 1.184458 sec. (a=3)
+25902068371*2^42904+1 is prime! (12926 decimal digits) Time : 1.393929 sec. (a=3)
+25902068371*2^103860+1 is prime! (31276 decimal digits) Time : 2.043805 sec. (a=3)
+25902068371*2^160840+1 is prime! (48429 decimal digits) Time : 2.814979 sec. (a=3)
+25902068371*2^298972+1 is prime! (90010 decimal digits) Time : 24.543734 sec. (a=3)
+25902068371*2^336688+1 is prime! (101364 decimal digits) Time : 47.600 sec. (a=3)
+25902068371*2^464376+1 is prime! (139802 decimal digits) Time : 75.432 sec. (a=3)
+25902068371*2^730600+1 is prime! (219943 decimal digits) Time : 195.208 sec. (a=3)
 
 
 ---------------
