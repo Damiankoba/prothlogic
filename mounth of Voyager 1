@@ -14,7 +14,8 @@
 25902068371*2^336688+1 is prime! (101364 decimal digits) Time : 47.600 sec. (a=3)
 25902068371*2^464376+1 is prime! (139802 decimal digits) Time : 75.432 sec. (a=3)
 25902068371*2^730600+1 is prime! (219943 decimal digits) Time : 195.208 sec. (a=3)
-
+25902068371*2^1014988+1 is prime! (305553 decimal digits) Time : 174.556 sec. (a=3)
+25902068371*2^1110912+1 is prime! (334429 decimal digits) Time : 54.593 sec. (a=3)
 
 ---------------
 N= 30 to 100000
@@ -368,3 +369,23 @@ ProthLogic 5.8 & GPUsieve
   Batch: 2074 / 2074 (100.0%) | primes: 1 | elapsed 7h 56m
 
 Calculations finished.
+
+---------------
+N= 1100001 to 1200000
+---------------
+batch 1/2
+ ProthLogic 5.8 & GPUsieve
+  N Range=[1100052..1199916]  Fixed K=25902068371
+  Workers (candidates at once): 6  |  Threads per candidate: 2
+
+[SYSTEM] Loaded 1076 N-candidates from voyager_1100001_1200000_b.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 1076 candidate(s) in 1076 task(s), 6 at once x 2 thread(s) + GPU
+ [IBDWT] k=25902068371 (35 bits): FFT 32768 self-test vs GMP failed, FFT 49152 self-test vs GMP failed - not used
+ [CALIBRATION] classic FFT 65536 (19-bit digits): PASS
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)
+[PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11
+  [GPU] plan: NTT 2^17 x 2 primes, 17-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^17 x 2 primes, 18-bit digits, 4 carry passes
+  Batch: 620 / 1076 (57.6%) | primes: 0 | elapsed 2h 34m | ETA 1h 56m^C
