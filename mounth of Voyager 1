@@ -17,6 +17,8 @@
 25902068371*2^1014988+1 is prime! (305553 decimal digits) Time : 174.556 sec. (a=3)
 25902068371*2^1110912+1 is prime! (334429 decimal digits) Time : 54.593 sec. (a=3)
 
+
+And i paste here some of test logs.
 ---------------
 N= 30 to 100000
 ---------------
