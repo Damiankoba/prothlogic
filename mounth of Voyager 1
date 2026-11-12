@@ -335,8 +335,15 @@ Workers (candidates at once): 6  |  Threads per candidate: 2
                                                                                                    
 [SYSTEM] Loaded 2017 N-candidates from light_day_voyager_n_900001_1000000.txt
 [INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.                              
-[RESUME] 217 candidate(s) already in composite.txt / primes.txt - skipped, 1800 left                                                                                                                    Starting Proth Test: 1800 candidate(s) in 1800 task(s), 6 at once x 2 thread(s) + GPU             [IBDWT] k=25902068371 (35 bits): FFT 32768 self-test vs GMP failed, FFT 49152 self-test vs GMP failed - not used                                                                                      [CALIBRATION] classic FFT 57344 (18-bit digits): PASS                                             [GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)   [PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11                                                [CHECKPOINT] check_k25902068371_n911292.bin: stored with 16128 limbs, now 14240 (other FFT length) - converted                                                                                        [CHECKPOINT] check_k25902068371_n911544.bin: stored with 14244 limbs, now 16128 (other FFT length) - converted
-[CHECKPOINT] check_k25902068371_n911656.bin: stored with 14246 limbs, now 16128 (other FFT length) - converted                                                                                          [GPU] plan: NTT 2^17 x 2 primes, 14-bit digits, 4 carry passes
+[RESUME] 217 candidate(s) already in composite.txt / primes.txt - skipped, 1800 left                                                                                                                    
+Starting Proth Test: 1800 candidate(s) in 1800 task(s), 6 at once x 2 thread(s) + GPU             
+[IBDWT] k=25902068371 (35 bits): FFT 32768 self-test vs GMP failed, FFT 49152 self-test vs GMP failed - not used                                                                                      
+[CALIBRATION] classic FFT 57344 (18-bit digits): PASS                                             
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)   [PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11                                                
+[CHECKPOINT] check_k25902068371_n911292.bin: stored with 16128 limbs, now 14240 (other FFT length) - converted                                                                                        
+[CHECKPOINT] check_k25902068371_n911544.bin: stored with 14244 limbs, now 16128 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n911656.bin: stored with 14246 limbs, now 16128 (other FFT length) - converted                                                                                          
+[GPU] plan: NTT 2^17 x 2 primes, 14-bit digits, 4 carry passes
 [CHECKPOINT] check_k25902068371_n911320.bin: stored with 16128 limbs, now 14241 (other FFT length) - converted
 [GPU] plan: NTT 2^17 x 2 primes, 15-bit digits, 4 carry passes                                     
 [GPU] plan: NTT 2^17 x 2 primes, 16-bit digits, 4 carry passes                                     
@@ -389,3 +396,114 @@ batch 1/2
   [GPU] plan: NTT 2^17 x 2 primes, 17-bit digits, 4 carry passes
   [GPU] plan: NTT 2^17 x 2 primes, 18-bit digits, 4 carry passes
   Batch: 620 / 1076 (57.6%) | primes: 0 | elapsed 2h 34m | ETA 1h 56m^C
+
+---------------
+N= 1200001 to 1300000
+---------------
+couple of logs, now test are split between 2-3 servers
+
+(main) root@C.60173679:~/prothlogic58$ ./prothlogic --in-file voyager_1200001_1300000_a.txt --gpu-only
+
+  ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
+  N Range=[1218208..1299996]  Fixed K=25902068371
+  GPU only (no CPU workers)
+
+[SYSTEM] Loaded 859 N-candidates from voyager_1200001_1300000_a.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 859 candidate(s), 4 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5080: GPU only, 4 candidate(s) at once on the card
+  [GPU] plan: NTT 2^17 x 2 primes, 19-bit digits, 3 carry passes
+  Batch: 136 / 859 (15.8%) | primes: 0 | elapsed 35m 09s | ETA 3h 08m^C
+
+(main) root@C.60173679:~/prothlogic58$ LOTR_GPU_STREAMS=6 ./prothlogic --in-file voyager_1200001_1300000_a.txt --gpu-only
+
+  ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
+  N Range=[1218208..1299996]  Fixed K=25902068371
+  GPU only (no CPU workers)
+
+[SYSTEM] Loaded 859 N-candidates from voyager_1200001_1300000_a.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+[RESUME] 136 candidate(s) already in composite.txt / primes.txt - skipped, 723 left
+
+  Starting Proth Test: 723 candidate(s), 6 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5080: GPU only, 6 candidate(s) at once on the card
+  [GPU] plan: NTT 2^17 x 2 primes, 19-bit digits, 3 carry passes
+  [GPU] plan: NTT 2^18 x 2 primes, 10-bit digits, 5 carry passes
+  Batch: 338 / 723 (46.7%) | primes: 0 | elapsed 1h 51m | ETA 2h 09m
+  Batch: 723 / 723 (100.0%) | primes: 0 | elapsed 4h 25m
+
+Calculations finished.
+Total computation time: 15942.92 s
+
+root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file voyager_1200001_1300000_b.txt --gpu --workers 6 --threads 2 --pin
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[1218316..1299960]  Fixed K=25902068371
+  Workers (candidates at once): 6  |  Threads per candidate: 2
+
+[SYSTEM] Loaded 858 N-candidates from voyager_1200001_1300000_b.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+[RESUME] 184 candidate(s) already in composite.txt / primes.txt - skipped, 674 left
+
+  Starting Proth Test: 674 candidate(s) in 674 task(s), 6 at once x 2 thread(s) + GPU
+ [CPU IBDWT] k=25902068371 (35 bits): FFT 32768 self-test vs GMP failed, FFT 49152 self-test vs GMP failed, FFT 65536 self-test vs GMP failed - not used
+ [CPU CALIBRATION] classic FFT 98304 (16-bit digits): PASS
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.29, 3: 1.32, 4: 1.32, 5: 1.32 -> 3 (rule 2, 2.0 s)
+[GPU] NVIDIA GeForce RTX 5060 Ti: 3 more workers on the queue (3 candidates at once on the card)
+[PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11
+[CHECKPOINT] check_k25902068371_n1236436.bin: stored with 24576 limbs, now 19321 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n1237764.bin: stored with 19342 limbs, now 24576 (other FFT length) - converted
+  [GPU] plan: NTT 2^17 x 2 primes, 19-bit digits, 3 carry passes
+[CHECKPOINT] check_k25902068371_n1236828.bin: stored with 24576 limbs, now 19327 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n1236672.bin: stored with 24576 limbs, now 19325 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n1237588.bin: stored with 19339 limbs, now 24576 (other FFT length) - converted
+  [GPU] plan: NTT 2^18 x 2 primes, 10-bit digits, 5 carry passes
+  Batch: 674 / 674 (100.0%) | primes: 0 | elapsed 4h 38m
+
+Calculations finished.
+Total computation time: 16711.20 s
+---------------
+N= 1300001 to 1400000
+---------------
+
+(main) root@C.60173679:~/prothlogic58$ ./prothlogic --in-file voyager_1300001_1400000_a.txt --gpu-only
+
+  ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
+  N Range=[1300072..1399924]  Fixed K=25902068371
+  GPU only (no CPU workers)
+
+[SYSTEM] Loaded 1052 N-candidates from voyager_1300001_1400000_a.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 1052 candidate(s), 4 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5080: GPU only, 4 candidate(s) at once on the card
+  [GPU] plan: NTT 2^18 x 2 primes, 10-bit digits, 5 carry passes
+  [GPU] plan: NTT 2^18 x 2 primes, 11-bit digits, 5 carry passes
+  Batch: 1052 / 1052 (100.0%) | primes: 0 | elapsed 7h 15m
+
+Calculations finished.
+Total computation time: 26104.52 s
+---------------
+N= 1400001 to 1500000
+---------------
+
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[1400008..1499992]  Fixed K=25902068371
+  Workers (candidates at once): 6  |  Threads per candidate: 2
+
+[SYSTEM] Loaded 1074 N-candidates from voyager_1400001_1500000_a.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 1074 candidate(s) in 1074 task(s), 6 at once x 2 thread(s) + GPU
+ [CPU IBDWT] k=25902068371 (35 bits): FFT 49152 self-test vs GMP failed, FFT 65536 self-test vs GMP failed - not used
+ [CPU CALIBRATION] classic FFT 98304 (16-bit digits): PASS
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.31, 3: 1.31, 4: 1.32 -> 2 (rule 2, 1.6 s)
+[GPU] NVIDIA GeForce RTX 5060 Ti: 2 more workers on the queue (2 candidates at once on the card)
+[PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11
+  [GPU] plan: NTT 2^18 x 2 primes, 11-bit digits, 5 carry passes
+  [GPU] plan: NTT 2^18 x 2 primes, 12-bit digits, 5 carry passes
+  Batch: 1074 / 1074 (100.0%) | primes: 0 | elapsed 8h 44m
+
+Calculations finished.
