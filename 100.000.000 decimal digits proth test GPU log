@@ -1,0 +1,22 @@
+
+Succesfull run and my bigest tested number, it took almost 11 days on this hardware(this instance had limits), but i have already had version prep for other instance with no limits.
+
+
+root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-only --detail
+
+  ProthLogic 5.8 & GPUsieve
+  7*2^332192806+1  (100000000 decimal digits)
+  GPU only (no CPU workers)
+
+
+  Starting Proth Test: 1 candidate(s), 1 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5060 Ti: GPU only, 1 candidate(s) at once on the card
+  [GPU] 7*2^332192806+1: HYBRID NTT 2^21 complex (2^22 digits) x 6 primes, 80-bit digits, 2 carry passes, column pass, WIDE (statistical), radix-16/8 block
+    [STEP] k=7 -> 25% | GPU | 2.3779 ms/iter
+    [STEP] k=7 -> 50% | GPU | 2.3761 ms/iter
+    [STEP] k=7 -> 75% | GPU | 2.3733 ms/iter
+    [STEP] k=7 -> 100% | GPU | 796.8080 ms/iter
+[+] 7*2^332192806+1 is not prime. Proth RES64: 0x4982F6F13E846A4B Time : 865336.553 sec. (a=3)
+
+Calculations finished.
+Total computation time: 599927.33 s
