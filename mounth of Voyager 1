@@ -513,7 +513,7 @@ Calculations finished.
 ---------------
 N= 1800001 to 2000000
 ---------------
-This batch is spread for 4
+This batch is spread on 4
 
   ProthLogic 5.8 & GPUsieve
   N Range=[1800040..1895776]  Fixed K=25902068371
@@ -554,3 +554,23 @@ Total computation time: 39386.49 s
 
 Calculations finished.
 Total computation time: 22288.06 s
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[1895868..1999996]  Fixed K=25902068371
+  Workers (candidates at once): 6  |  Threads per candidate: 2
+
+[SYSTEM] Loaded 1103 N-candidates from voyager_1800001_2000000_d.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 1103 candidate(s) in 1103 task(s), 6 at once x 2 thread(s) + GPU
+ [CPU IBDWT] k=25902068371 (35 bits): FFT 65536 self-test vs GMP failed, FFT 98304 self-test vs GMP failed - not used
+ [CPU CALIBRATION] classic FFT 114688 (18-bit digits): PASS
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.53, 3: 1.74, 4: 1.88, 5: 1.87, 6: 1.84 -> 4 (rule 4, 2.3 s)
+[GPU] NVIDIA GeForce RTX 5080: 4 more workers on the queue (4 candidates at once on the card)
+[PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11
+  [GPU] plan: NTT 2^18 x 2 primes, 15-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^18 x 2 primes, 16-bit digits, 4 carry passes
+  Batch: 1103 / 1103 (100.0%) | primes: 0 | elapsed 7h 09m
+
+Calculations finished.
+Total computation time: 25760.65 s
