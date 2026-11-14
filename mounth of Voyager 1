@@ -574,3 +574,28 @@ Total computation time: 22288.06 s
 
 Calculations finished.
 Total computation time: 25760.65 s
+
+
+root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file voyager_1800001_2000000_c.txt --gpu --workers 6 --threads 2 --pin
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[1895860..1999960]  Fixed K=25902068371
+  Workers (candidates at once): 6  |  Threads per candidate: 2
+
+[SYSTEM] Loaded 1103 N-candidates from voyager_1800001_2000000_c.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 1103 candidate(s) in 1103 task(s), 6 at once x 2 thread(s) + GPU
+ [CPU IBDWT] k=25902068371 (35 bits): FFT 65536 self-test vs GMP failed, FFT 98304 self-test vs GMP failed - not used
+ [CPU CALIBRATION] classic FFT 114688 (18-bit digits): PASS
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.32, 3: 1.33, 4: 1.34, 5: 1.33, 6: 1.32 -> 4 (rule 2, 2.4 s)
+[GPU] NVIDIA GeForce RTX 5060 Ti: 4 more workers on the queue (4 candidates at once on the card)
+[PIN] 6 worker(s) x 2 thread(s) pinned to CPUs 0-11
+  [GPU] plan: NTT 2^18 x 2 primes, 15-bit digits, 4 carry passes
+  [GPU] plan: NTT 2^18 x 2 primes, 16-bit digits, 4 carry passes
+  Batch: 1103 / 1103 (100.0%) | primes: 0 | elapsed 12h 49m
+
+Calculations finished.
+Total computation time: 46178.90 s
+root@C.49516639:~/Opt/prothlogic/prothlogic58$
+
