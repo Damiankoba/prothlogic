@@ -1,6 +1,6 @@
 
 Succesfull run and my bigest tested number, it took almost 11 days on this hardware(this instance had limits), but i have already had version prep for other instance with no limits.
-
+last ms/iter is ending, whole test is stable
 
 root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-only --detail
 
