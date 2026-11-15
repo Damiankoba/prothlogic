@@ -604,6 +604,8 @@ Total computation time: 46178.90 s
 ---------------
 N= 2100001 to 3000000
 ---------------
+couple running tests
+Stop+Resume test
 
 root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file voyager_2100001_2300000_a.txt --gpu --workers 2 --threads 6 --pin
 
@@ -613,12 +615,36 @@ root@C.49516639:~/Opt/prothlogic/prothlogic58$ ./prothlogic --in-file voyager_21
 
 [SYSTEM] Loaded 1000 N-candidates from voyager_2100001_2300000_a.txt
 [INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+[RESUME] 34 candidate(s) already in composite.txt / primes.txt - skipped, 966 left
+
+  Starting Proth Test: 966 candidate(s) in 966 task(s), 2 at once x 6 thread(s) + GPU
+ [CPU IBDWT] k=25902068371 (35 bits): FFT 65536 self-test vs GMP failed, FFT 98304 self-test vs GMP failed - not used
+ [CPU CALIBRATION] classic FFT 114688 (19-bit digits): PASS
+[GPU] WIDE 7 bench: classic NTT 2^18 x 2 (17-bit) 0.0453 ms/iter vs WIDE 7 2^14 x 7 0.0288 ms/iter (-36.3%), values equal -> WIDE 7 (1.0 s)
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.31, 3: 1.68, 4: 1.89, 5: 2.00, 6: 1.96, 7: 1.78 -> 5 (rule 2, 3.7 s)
+[GPU] NVIDIA GeForce RTX 5060 Ti: 5 more workers on the queue (5 candidates at once on the card)
+[PIN] 2 worker(s) x 6 thread(s) pinned to CPUs 0-11
+[CHECKPOINT] check_k25902068371_n2102020.bin: stored with 34048 limbs, now 32846 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n2101972.bin: stored with 34048 limbs, now 32845 (other FFT length) - converted
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 65-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  Batch: 4 / 966 (0.4%) | primes: 0 | elapsed 1m 41s | ETA 7h 01m
+
+-----------------------------------------------------
+root@C.60387947:~/prothlogic58$ ./prothlogic --in-file voyager_2100001_2300000_b.txt --gpu --workers 2 --threads 6 --pin
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[2144944..2188380]  Fixed K=25902068371
+  Workers (candidates at once): 2  |  Threads per candidate: 6
+
+[SYSTEM] Loaded 1000 N-candidates from voyager_2100001_2300000_b.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
 
   Starting Proth Test: 1000 candidate(s) in 1000 task(s), 2 at once x 6 thread(s) + GPU
  [CPU IBDWT] k=25902068371 (35 bits): FFT 65536 self-test vs GMP failed, FFT 98304 self-test vs GMP failed - not used
- [CPU CALIBRATION] classic FFT 114688 (19-bit digits): PASS
-[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.32, 3: 1.35, 4: 1.35, 5: 1.34 -> 3 (rule 2, 2.0 s)
-[GPU] NVIDIA GeForce RTX 5060 Ti: 3 more workers on the queue (3 candidates at once on the card)
+ [CPU CALIBRATION] classic FFT 131072 (17-bit digits): PASS
+[GPU] WIDE 7 bench: classic NTT 2^18 x 2 (17-bit) 0.0278 ms/iter vs WIDE 7 2^14 x 7 0.0225 ms/iter (-19.0%), values equal -> WIDE 7 (1.0 s)
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.63, 3: 2.14, 4: 2.54, 5: 2.88, 6: 3.19, 7: 3.38, 8: 3.53, 9: 3.44, 10: 3.52 -> 8 (rule 4, 4.7 s)
+[GPU] NVIDIA GeForce RTX 5080: 8 more workers on the queue (8 candidates at once on the card)
 [PIN] 2 worker(s) x 6 thread(s) pinned to CPUs 0-11
-  [GPU] plan: NTT 2^18 x 2 primes, 17-bit digits, 4 carry passes
-  Batch: 10 / 1000 (1.0%) | primes: 0 | elapsed 9m 41s | ETA 12h 51m
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 66-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  Batch: 34 / 1000 (3.4%) | primes: 0 | elapsed 7m 23s | ETA 3h 30m
