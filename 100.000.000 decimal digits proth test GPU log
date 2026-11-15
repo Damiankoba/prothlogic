@@ -20,3 +20,19 @@ root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-onl
 
 Calculations finished.
 Total computation time: 599927.33 s
+
+
+
+NEW TEST
+root@C.60749956:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --detail
+
+  ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
+  585*2^332192797+1  (100000000 decimal digits)
+  GPU only (no CPU workers)
+
+
+  Starting Proth Test: 1 candidate(s), 1 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5080: GPU only, 1 candidate(s) at once on the card
+[GPU] WIDE 7 bench: 2^22 x 4 40-bit 1.3070 ms/iter vs WIDE 7 2^21 x 7 1.2533 ms/iter (-4.1%), values equal -> WIDE 7 (4.8 s)
+  [GPU] 585*2^332192797+1: HYBRID NTT 2^21 complex (2^22 digits) x 7 primes, 80-bit digits, 2 carry passes, column pass (L2 order by prime, 2 streams), WIDE (worst case), radix-16/8 block
+  GPU | 12.91% | iter 42890496 / 332192796 | 1.2852 ms/iter | ETA 4d 07h
