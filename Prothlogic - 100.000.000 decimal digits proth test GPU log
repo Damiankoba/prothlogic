@@ -23,7 +23,7 @@ Total computation time: 599927.33 s
 
 
 
-NEW TEST
+NEW TEST no limits on power suply 
 root@C.60749956:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --detail
 
   ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
