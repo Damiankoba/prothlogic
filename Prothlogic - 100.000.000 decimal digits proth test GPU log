@@ -19,9 +19,7 @@ root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-onl
 [+] 7*2^332192806+1 is not prime. Proth RES64: 0x4982F6F13E846A4B Time : 865336.553 sec. (a=3)
 
 Calculations finished.
-Total computation time: 599927.33 s
-
-
+ 
 
 NEW TEST no limits on power suply 
 root@C.60749956:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --detail
