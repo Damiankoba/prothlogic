@@ -648,3 +648,43 @@ root@C.60387947:~/prothlogic58$ ./prothlogic --in-file voyager_2100001_2300000_b
 [PIN] 2 worker(s) x 6 thread(s) pinned to CPUs 0-11
   [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 66-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
   Batch: 34 / 1000 (3.4%) | primes: 0 | elapsed 7m 23s | ETA 3h 30m
+
+
+root@C.60387947:~/prothlogic58$ ./prothlogic --in-file voyager_2300001_2500000.txt --gpu --workers 2 --threads 6 --pin
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[2300016..2499988]  Fixed K=25902068371
+  Workers (candidates at once): 2  |  Threads per candidate: 6
+
+[SYSTEM] Loaded 4310 N-candidates from voyager_2300001_2500000.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for FFT test.
+
+  Starting Proth Test: 4310 candidate(s) in 4310 task(s), 2 at once x 6 thread(s) + GPU                                                 
+[CPU IBDWT] k=25902068371 (35 bits): FFT 65536 self-test vs GMP failed, FFT 98304 self-test vs GMP failed, FFT 131072 self-test vs GMP failed - not used                                                                                                                     
+[CPU CALIBRATION] classic FFT 196608 (16-bit digits): PASS
+[GPU] WIDE 7 bench: classic NTT 2^19 x 2 (10-bit) 0.0519 ms/iter vs WIDE 7 2^15 x 7 0.0311 ms/iter (-40.0%), values equal -> WIDE 7 (0.9 s)
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.49, 3: 1.86, 4: 2.07, 5: 2.30, 6: 2.39, 7: 2.24, 8: 2.02 -> 6 (rule 4, 4.0 s)
+[GPU] NVIDIA GeForce RTX 5080: 6 more workers on the queue (6 candidates at once on the card)
+[PIN] 2 worker(s) x 6 thread(s) pinned to CPUs 0-11
+  Batch: 0 / 4310 (0.0%) | primes: 0 | elapsed 5s | ETA ?[GPU] WIDE 7 bench: classic NTT 2^18 x 2 (18-bit) 0.0284 ms/iter vs WIDE 7 2^14 x 7 0.0230 ms/iter (-18.9%), values equal -> WIDE 7 (0.9 s)
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 71-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 72-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 73-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 72-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 73-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 72-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 73-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 74-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^14 complex (2^15 digits) x 7 primes, 75-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  Batch: 3398 / 4310 (78.8%) | primes: 0 | elapsed 14h 52m | ETA 4h 07m[GPU] WIDE 7 bench: classic NTT 2^18 x 2 (19-bit) 0.0560 ms/iter vs WIDE 7 2^15 x 7 0.0600 ms/iter (+7.2%), values equal -> automatic plan (1.1 s)
+  [GPU] plan: NTT 2^18 x 2 primes, 19-bit digits, 3 carry passes
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 38-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 39-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+[GPU] the card is free: it takes over 25902068371*2^2499964+1 from the CPU at 0.2% (after its next checkpoint)
+[GPU] the card is free: it takes over 25902068371*2^2499960+1 from the CPU at 8.0% (after its next checkpoint)
+[CHECKPOINT] check_k25902068371_n2499964.bin: stored with 49152 limbs, now 39063 (other FFT length) - converted
+[CHECKPOINT] check_k25902068371_n2499960.bin: stored with 49152 limbs, now 39063 (other FFT length) - converted
+  Batch: 4310 / 4310 (100.0%) | primes: 0 | elapsed 22h 54m
+
+Calculations finished.
+Total computation time: 82473.04 s
