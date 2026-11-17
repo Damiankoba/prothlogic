@@ -706,13 +706,10 @@ Starting ZCSieve GPU for N=2700001..3700000 (k=25902068371), from P=0 to Pmax=50
 [DONE] Sieve time: 6276.72 s
 [SIEVE] Saving 21186 surviving candidates to file: voyager_2700001_3700000_P5e12.txt
 [INFO] The --sieve-only flag is active. Stopping before the FFT.
+                                                                      
+
+
 root@C.60387947:~/prothlogic58$ ./prothlogic --n-start 2700001 --n-end 3700000 --k 25902068371 --in-file voyager_2700001_3700000_P5e12.txt --pstart 5000000000000 --pmax 30000000000000 --sieve-only --out-sieve voyager_2700001_3700000_P3e13.txt
-
-  ProthLogic 5.8 & GPUsieve
-  N Range=[2700001..3700000]  Fixed K=25902068371
-  Workers (candidates at once): 1 (auto)  |  Threads per candidate: 1
-
-[SYSTEM] Loaded 21186 N-candidates from voyager_2700001_3700000_P5e12.txt
-Starting ZCSieve GPU for N=2700001..3700000 (k=25902068371), from P=5000000000000 to Pmax=30000000000000...
-[STREAM] Processed to P = 5030720000000...
-
+                                                                                                     ProthLogic 5.8 & GPUsieve                                                                          N Range=[2700001..3700000]  Fixed K=25902068371
+  Workers (candidates at once): 1 (auto)  |  Threads per candidate: 1                                                                                                                                 [SYSTEM] Loaded 21186 N-candidates from voyager_2700001_3700000_P5e12.txt                          Starting ZCSieve GPU for N=2700001..3700000 (k=25902068371), from P=5000000000000 to Pmax=30000000000000...                                                                                           [STREAM] Processed to P = 30000000000001...                                                        [STREAM] N-Range screening has been completed!
+[DONE] Surviving Ns after sieve 19959 of 1000000                                                   [DONE] Sieve time: 29174.8 s                                                                       [SIEVE] Saving 19959 surviving candidates to file: voyager_2700001_3700000_P3e13.txt               [INFO] The --sieve-only flag is active. Stopping before the FFT.
