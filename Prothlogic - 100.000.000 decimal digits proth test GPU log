@@ -45,3 +45,6 @@ ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
   [GPU] 585*2^332192797+1: HYBRID NTT 2^21 complex (2^22 digits) x 7 primes, 80-bit digits, 2 carry passes, column pass (L2 order by prime, 2 streams), WIDE (worst case), radix-16/8 block
     [STEP] k=585 -> 25% | GPU | 1.3880 ms/iter
   GPU | 30.78% | iter 102241280 / 332192796 | 1.3640 ms/iter | ETA 3d 15h
+update
+ [STEP] k=585 -> 50% | GPU | 1.3489 ms/iter
+  GPU | 50.12% | iter 166480384 / 332192796 | 1.3548 ms/iter | ETA 2d 14h
