@@ -1,0 +1,86 @@
+Benchamrk Prothlogic vs. proth20
+For this benchmark I made tests with proth20 only on RTX 5080
+
+
+Virtual Machine
+GPU: NVIDIA GeForce RTX 5080 Founders Edition
+
+Proth20
+root@C.61771107:~/proth20test/proth20$ cd /root/proth20test/proth20 && chmod +x bench_proth20.sh && ./bench_proth20.sh
+proth20 on: NVIDIA GeForce RTX 5080
+N         k      size                 ms/iter   t_wall_s     t_p20  result
+96209     7623   2^14 x 21 bit         0.0727      6.993  00:00:06  PRIME
+136729    5031   2^14 x 21 bit         0.0704      9.619  00:00:09  PRIME
+167549    9729   2^14 x 21 bit         0.0692     11.596  00:00:11  PRIME
+200690    7779   2^15 x 21 bit         0.0693     13.902  00:00:13  PRIME
+200203    8721   2^15 x 21 bit         0.0686     13.728  00:00:13  PRIME
+246782    7989   2^15 x 21 bit         0.0681     16.817  00:00:16  PRIME
+324946    4423   2^15 x 21 bit         0.0674     21.917  00:00:21  PRIME
+426497    9675   2^16 x 21 bit         0.0672     28.677  00:00:28  PRIME
+832962    9553   2^17 x 21 bit         0.0664     55.292  00:00:54  PRIME
+1027189   4715   2^17 x 21 bit         0.0663     68.127  00:01:07  09B5E846211DD2B8
+1876758   613    2^18 x 21 bit         0.0747    140.135  00:02:19  PRIME
+2605367   4715   2^18 x 21 bit         0.0739    192.622  00:03:11  721B8E2462FE75C6
+2705367   39     2^18 x 21 bit         0.0737    199.447  00:03:18  PRIME
+3424433   4715   2^19 x 21 bit         0.0826    283.011  00:04:42  PRIME
+4196940   1023   2^19 x 21 bit         0.0761    319.333  00:05:18  PRIME
+4297937   1143   2^19 x 21 bit         0.0754    323.859  00:05:22  PRIME
+4743708   44035  2^19 x 21 bit         0.0750    355.809  00:05:54  PRIME
+5435752   91     2^19 x 21 bit         0.0733    398.514  00:06:37  PRIME
+8000010   100003 2^20 x 20 bit         0.0906          -         -  (timeout 120s)
+20267500  7      2^21 x 20 bit          0.131          -         -  (timeout 120s)
+
+
+ProthLogic
+
+root@C.61771107:~/prothlogic58$ GPU=1 ./bench.sh
+N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s    time for 1%  result
+96209     7623   gpu 2^13  GPU NTT 2p 24-bit           0.0156         -      1.499        0.0  PRIME
+136729    5031   gpu 2^13  GPU NTT 3p 34-bit           0.0158         -      2.163        0.0  PRIME
+167549    9729   gpu 2^14  GPU NTT 2p 21-bit           0.0172         -      2.878        0.0  PRIME
+200690    7779   gpu 2^14  GPU NTT 3p 25-bit           0.0177         -      3.561        0.0  PRIME
+200203    8721   gpu 2^14  GPU NTT 3p 25-bit           0.0181         -      3.630        0.0  PRIME
+246782    7989   gpu 2^14  GPU NTT 3p 31-bit           0.0184         -      4.530        0.0  PRIME
+324946    4423   gpu 2^14  GPU NTT 4p 40-bit           0.0186         -      6.030        0.1  PRIME
+426497    9675   gpu 2^15  GPU NTT 3p 27-bit           0.0164         -      7.010        0.1  PRIME
+832962    9553   gpu 2^14c GPU HYB NTT 3p 26-bit       0.0190         -     15.849        0.2  PRIME
+1027189   4715   gpu 2^14c GPU HYB NTT 4p 32-bit       0.0199         -     20.460        0.2  09B5E846211DD2B8
+1876758   613    gpu 2^15c GPU HYB NTT 3p 29-bit       0.0213         -     39.993        0.4  PRIME
+2605367   4715   gpu 2^15c GPU HYB NTT 4p 40-bit       0.0218         -     56.732        0.6  721B8E2462FE75C6
+2705367   39     gpu 2^15c GPU HYB NTT 4p 42-bit       0.0214         -     57.806        0.6  PRIME
+3424433   4715   gpu 2^16c GPU HYB NTT 3p 27-bit       0.0273         -     93.517        0.9  PRIME
+4196940   1023   gpu 2^16c GPU HYB NTT 4p 33-bit       0.0290         -    121.840        1.2  PRIME
+4297937   1143   gpu 2^16c GPU HYB NTT 4p 33-bit       0.0290         -    124.832        1.2  PRIME
+4743708   44035  gpu 2^16c GPU HYB NTT 4p 37-bit       0.0292         -    138.438        1.4  PRIME
+5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0285         -    155.052        1.5  PRIME
+8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0514         -          -        4.1  (stopped after 1%)
+20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.0647         -          -       13.1  (stopped after 1%)
+
+Virtual Machine
+GPU: 	RTX 4070 ASUS
+
+ProthLogic
+
+(main) root@C.61781970:~/prothlogic58$ GPU=1 ./bench.sh
+N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s    time for 1%  result
+96209     7623   gpu 2^13  GPU NTT 2p 24-bit           0.0143         -      1.371        0.0  PRIME
+136729    5031   gpu 2^13  GPU NTT 3p 34-bit           0.0143         -      1.953        0.0  PRIME
+167549    9729   gpu 2^14  GPU NTT 2p 21-bit           0.0161         -      2.695        0.0  PRIME
+200690    7779   gpu 2^14  GPU NTT 3p 25-bit           0.0169         -      3.393        0.0  PRIME
+200203    8721   gpu 2^14  GPU NTT 3p 25-bit           0.0170         -      3.411        0.0  PRIME
+246782    7989   gpu 2^14  GPU NTT 3p 31-bit           0.0170         -      4.202        0.0  PRIME
+324946    4423   gpu 2^14  GPU NTT 4p 40-bit           0.0177         -      5.767        0.1  PRIME
+426497    9675   gpu 2^15  GPU NTT 3p 27-bit           0.0159         -      6.774        0.1  PRIME
+832962    9553   gpu 2^14c GPU HYB NTT 3p 26-bit       0.0238         -     19.835        0.2  PRIME
+1027189   4715   gpu 2^14c GPU HYB NTT 4p 32-bit       0.0250         -     25.669        0.3  09B5E846211DD2B8
+1876758   613    gpu 2^15c GPU HYB NTT 3p 29-bit       0.0293         -     54.902        0.5  PRIME
+2605367   4715   gpu 2^15c GPU HYB NTT 4p 40-bit       0.0313         -     81.611        0.8  721B8E2462FE75C6
+2705367   39     gpu 2^15c GPU HYB NTT 4p 42-bit       0.0306         -     82.714        0.8  PRIME
+3424433   4715   gpu 2^16c GPU HYB NTT 3p 27-bit       0.0457         -    156.419        1.6  PRIME
+4196940   1023   gpu 2^16c GPU HYB NTT 4p 33-bit       0.0493         -    206.879        2.1  PRIME
+4297937   1143   gpu 2^16c GPU HYB NTT 4p 33-bit       0.0492         -    211.525        2.1  PRIME
+4743708   44035  gpu 2^16c GPU HYB NTT 4p 37-bit       0.0493         -    233.684        2.3  PRIME
+5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0484         -    262.907        2.6  PRIME
+8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0890         -          -        7.1  (stopped after 1%)
+20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.1274         -          -       25.8  (stopped after 1%)
+
