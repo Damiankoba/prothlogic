@@ -48,3 +48,25 @@ ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
 update
  [STEP] k=585 -> 50% | GPU | 1.3489 ms/iter
   GPU | 50.12% | iter 166480384 / 332192796 | 1.3548 ms/iter | ETA 2d 14h
+
+
+restart test on other serwer, Total computation time: 27856.03 s this time is after restart
+
+root@C.61605693:~/prothlogic58$ LOTR_GPU_WIDE=7 ./prothlogic --n 332192797 --k 585 --gpu-only --detail
+
+  ProthLogic 5.8 & GPUsieve
+  585*2^332192797+1  (100000000 decimal digits)
+  GPU only (no CPU workers)
+
+
+  Starting Proth Test: 1 candidate(s), 1 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5080: GPU only, 1 candidate(s) at once on the card
+[GPU] L2 order bench: all primes 1176.5 us vs prime by prime 1204.0 us a square (+2.3%) -> all primes (0.9 s)
+  [GPU] 585*2^332192797+1: HYBRID NTT 2^21 complex (2^22 digits) x 7 primes, 80-bit digits, 2 carry passes, column pass, WIDE (worst case), radix-16/8 block
+    [STEP] k=585 -> 93% | GPU | 1.3389 ms/iter
+  GPU | 93.44% | iter 310409472 / 332192796 | 1.2416 ms/iter | ETA 7h 30m
+    [STEP] k=585 -> 100% | GPU | 12.0263 ms/iter
+[+] 585*2^332192797+1 is not prime. Proth RES64: 0xB940F5920661E0C1 Time : 441762.396 sec. (a=19)
+
+Calculations finished.
+Total computation time: 27856.03 s
