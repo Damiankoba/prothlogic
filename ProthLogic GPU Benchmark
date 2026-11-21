@@ -31,7 +31,7 @@ N         k      size                 ms/iter   t_wall_s     t_p20  result
 20267500  7      2^21 x 20 bit          0.131          -         -  (timeout 120s)
 
 
-ProthLogic
+ProthLogic58
 
 root@C.61771107:~/prothlogic58$ GPU=1 ./bench.sh
 N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s    time for 1%  result
@@ -59,7 +59,7 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 Virtual Machine
 GPU: 	RTX 4070 ASUS
 
-ProthLogic
+ProthLogic58
 
 (main) root@C.61781970:~/prothlogic58$ GPU=1 ./bench.sh
 N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s    time for 1%  result
