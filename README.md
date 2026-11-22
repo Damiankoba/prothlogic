@@ -11,7 +11,7 @@ This project uses the MPIR / GMP library for multiple precision arithmetic.
 The included headers (gmp.h, gmpxx.h) are part of the MPIR Library and are distributed under the terms of the GNU Lesser General Public License (LGPL).
 
 
-I am an independent the creator of ProthLogic, an open-source mathematical software program designed to test the primality of Proth numbers using both CPU and GPU resources.
+I am an independent the creator of ProthLogic using AI models for coding, an open-source mathematical software program designed to test the primality of Proth numbers using both CPU and GPU resources.
 
 What I'm building
 Our development focuses heavily on high-performance computing and low-level hardware optimizations. I write code that utilizes CPU cache retention, OpenMP multi-threading, and AVX-512 vector instructions to push modern hardware to its absolute limits and accelerate complex mathematical calculations.
@@ -41,6 +41,26 @@ Version 5.8 is focused on Proth numbers tested on GPU hardware.
 - 100,000,000-digit Proth test (585·2^332192797+1) completed on GPU
 - Full numbers and performance tests: see `ProthLogic GPU Benchmark` and `one light-day Voyager 1`
 
+### How the GPU engines work
+
+Both engines compute the squarings of a Proth test (a^((N-1)/2) mod N, N = k·2^n+1) with **exact integer
+arithmetic** – a Number Theoretic Transform (NTT) modulo several 31-bit primes instead of a floating-point FFT,
+so there are no rounding errors to watch. The results for each prime are combined with the Chinese Remainder
+Theorem, then the carries are propagated.
+
+**Classic GPU engine**
+- The number is split into small digits; each squaring is a cyclic convolution with zero padding
+  (the transform is twice as long as the number), followed by reduction modulo N.
+- 2–4 primes, 32-bit Montgomery arithmetic, large-radix passes that keep the data in on-chip memory.
+- Simple and robust; used for small n and as a reference for the hybrid engine.
+
+**Hybrid NTT engine** (default from ~800k bits)
+- **No zero padding**: a weighted (negacyclic) convolution performs the reduction modulo k·2^n+1 inside the
+  transform itself, with digits of variable size – the transform is half as long as in the classic engine.
+- The transform runs over **complex numbers modulo p** (GF(p²), primes p ≡ 3 mod 4), which halves the length again.
+- Wide digits (up to ~80 bits) with 6–7 primes for very large numbers: fewer, bigger digits mean less memory traffic.
+- At start-up the program measures several layouts on the user's card and keeps the fastest one.
+- Every segment is verified with the Gerbicz-Li check; results match the classic engine and other programs bit for bit.
 
 
 ----------------
