@@ -18,13 +18,34 @@ Our development focuses heavily on high-performance computing and low-level hard
 
 
 
-Version Prothlogic v5.7
+## ProthLogic 5.8 (in development – not released yet)
+
+Version 5.8 adds a full **CUDA GPU engine** next to the AVX-512 CPU engine.
+The source code will be published after the first ProthLogic prime enters the Top 5000 list.
+Version 5.8 is focused on Proth numbers tested on GPU hardware.
+
+**What's new**
+- **GPU primality testing (CUDA)** for k·2^n+1: exact integer NTT arithmetic (no floating-point rounding errors), from small n up to 100,000,000-digit numbers
+- **Automatic plan selection**: at start-up the program benchmarks several transform layouts on the user's card and picks the fastest one
+- **Batch mode**: several candidates tested at once on one GPU, so even small numbers keep the card fully loaded
+- **GPU sieve** for large candidate lists
+- **Safe checkpoints**: data is flushed to disk, and damaged checkpoint files are detected and reported
+- - **Gerbicz-Li error checking on GPU**: every segment of 65,536 squarings is verified; on a mismatch the test rolls back to the last verified state
+- **CPU ↔ GPU checkpoints**: a test started on the CPU can continue on the card and back
+- - **Hybrid CPU + GPU mode**: a list of candidates from a file is tested on the CPU (AVX-512) and the GPU at the same time, from one shared queue – each engine takes the next candidate as soon as it is free
+- Works on NVIDIA RTX 20, 40 and 50 series (tested: 2080 Ti, 4070, 5060, 5060 Ti, 5080, 5090)
+
+**Results so far**
+- Same card (RTX 5080), same 18 test numbers: **2.87× faster than proth20** overall
+- Residues (RES64) of composite numbers match proth20 exactly (independent verification)
+- 100,000,000-digit Proth test (585·2^332192797+1) completed on GPU
+- Full numbers and performance tests: see `ProthLogic GPU Benchmark` and `one light-day Voyager 1`
 
 
 
 ----------------
 
-Version ProthLogic v5
+Version ProthLogic v5 - complited
 1. Continuing to optimize time ms/iter, actual for tested N=3322774 time is 1.35 ms/iter and for N=3099097 time is 1.40 ms/iter. both numbers are tested same time with taskset-c 0-5/6-10 and working with 4 threads each test. done
 2. Implementation in progress: radix for AVX2(very slow for now, not supported by program yet)
 3. Operation Fusion (Eliminate unnecessary RAM reads) new function unpack_karatsuba_overlap_add_vbmi done
