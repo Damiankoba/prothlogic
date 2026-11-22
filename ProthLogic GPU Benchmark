@@ -57,6 +57,37 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.0647         -          -       13.1  (stopped after 1%)
 
 Virtual Machine
+name, power.draw [W], power.limit [W], temperature.gpu, clocks.current.sm [MHz], utilization.gpu [%]
+NVIDIA GeForce RTX 5090, 167.53 W, 575.00 W, 54, 2940 MHz, 97 %
+
+ProthLogic58
+(main) root@C.61941494:~/prothlogic58$ GPU=1 ./bench.sh
+N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s    time for 1%  result
+96209     7623   gpu 2^13  GPU NTT 2p 24-bit           0.0158         -      1.517        0.0  PRIME
+136729    5031   gpu 2^13  GPU NTT 3p 34-bit           0.0160         -      2.194        0.0  PRIME
+167549    9729   gpu 2^14  GPU NTT 2p 21-bit           0.0174         -      2.919        0.0  PRIME
+200690    7779   gpu 2^14  GPU NTT 3p 25-bit           0.0177         -      3.561        0.0  PRIME
+200203    8721   gpu 2^14  GPU NTT 3p 25-bit           0.0180         -      3.612        0.0  PRIME
+246782    7989   gpu 2^14  GPU NTT 3p 31-bit           0.0181         -      4.470        0.0  PRIME
+324946    4423   gpu 2^14  GPU NTT 4p 40-bit           0.0178         -      5.797        0.1  PRIME
+426497    9675   gpu 2^15  GPU NTT 3p 27-bit           0.0164         -      6.982        0.1  PRIME
+832962    9553   gpu 2^14c GPU HYB NTT 3p 26-bit       0.0192         -     16.018        0.2  PRIME
+1027189   4715   gpu 2^14c GPU HYB NTT 4p 32-bit       0.0200         -     20.527        0.2  09B5E846211DD2B8
+1876758   613    gpu 2^15c GPU HYB NTT 3p 29-bit       0.0209         -     39.178        0.4  PRIME
+2605367   4715   gpu 2^15c GPU HYB NTT 4p 40-bit       0.0215         -     56.128        0.6  721B8E2462FE75C6
+2705367   39     gpu 2^15c GPU HYB NTT 4p 42-bit       0.0211         -     56.998        0.6  PRIME
+3424433   4715   gpu 2^16c GPU HYB NTT 3p 27-bit       0.0249         -     85.306        0.9  PRIME
+4196940   1023   gpu 2^16c GPU HYB NTT 4p 33-bit       0.0256         -    107.276        1.1  PRIME
+4297937   1143   gpu 2^16c GPU HYB NTT 4p 33-bit       0.0256         -    110.044        1.1  PRIME
+4743708   44035  gpu 2^16c GPU HYB NTT 4p 37-bit       0.0257         -    121.953        1.2  PRIME
+5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0252         -    136.922        1.4  PRIME
+8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0369         -          -        3.0  (stopped after 1%)
+20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.0466         -          -        9.4  (stopped after 1%)
+
+
+
+
+Virtual Machine
 GPU: 	RTX 4070 ASUS
 
 ProthLogic58
