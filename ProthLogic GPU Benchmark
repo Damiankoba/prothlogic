@@ -27,8 +27,8 @@ N         k      size                 ms/iter   t_wall_s     t_p20  result
 4297937   1143   2^19 x 21 bit         0.0754    323.859  00:05:22  PRIME
 4743708   44035  2^19 x 21 bit         0.0750    355.809  00:05:54  PRIME
 5435752   91     2^19 x 21 bit         0.0733    398.514  00:06:37  PRIME
-8000010   100003 2^20 x 20 bit         0.0906          -         -  (timeout 120s)
-20267500  7      2^21 x 20 bit          0.131          -         -  (timeout 120s)
+8000010   100003 2^20 x 20 bit         0.0906          -         -  (timeout 150s)
+20267500  7      2^21 x 20 bit          0.131          -         -  (timeout 150s)
 
 
 ProthLogic58
