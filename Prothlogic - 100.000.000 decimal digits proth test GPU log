@@ -70,3 +70,22 @@ root@C.61605693:~/prothlogic58$ LOTR_GPU_WIDE=7 ./prothlogic --n 332192797 --k 5
 
 Calculations finished.
 Total computation time: 27856.03 s
+
+NVIDIA GeForce RTX 5090 after 10min
+
+(main) root@C.61946480:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --detail
+
+  ProthLogic 5.8 & GPUsieve
+  585*2^332192797+1  (100000000 decimal digits)
+  GPU only (no CPU workers)
+
+
+  Starting Proth Test: 1 candidate(s), 1 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5090: GPU only, 1 candidate(s) at once on the card
+nvidia-smi --query-gpu=power.draw,power.limit,clocks.sm,utilization.gpu --format=csv
+
+[GPU] L2 order bench: all primes 666.5 us vs prime by prime 681.3 us a square (+2.2%) -> all primes (0.5 s)
+[GPU] L2 order bench: all primes 620.0 us vs prime by prime 640.5 us a square (+3.3%) -> all primes (0.5 s)
+[GPU] WIDE 7 bench: 2^22 x 4 40-bit 0.7651 ms/iter vs WIDE 7 2^21 x 7 0.7111 ms/iter (-7.1%), values equal -> WIDE 7 (3.6 s)
+  [GPU] 585*2^332192797+1: HYBRID NTT 2^21 complex (2^22 digits) x 7 primes, 80-bit digits, 2 carry passes, column pass, WIDE (worst case), radix-16/8 block
+  GPU | 0.19% | iter 631040 / 332192796 | 0.7673 ms/iter | ETA 2d 22h
