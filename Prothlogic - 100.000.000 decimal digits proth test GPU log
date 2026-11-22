@@ -21,7 +21,7 @@ root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-onl
 Calculations finished.
  
 
-NEW TEST no limits on power suply 
+NEW TEST RTX 5080 no limits on power suply 
 root@C.60749956:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --detail
 
   ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
@@ -71,6 +71,7 @@ root@C.61605693:~/prothlogic58$ LOTR_GPU_WIDE=7 ./prothlogic --n 332192797 --k 5
 Calculations finished.
 Total computation time: 27856.03 s
 
+-----------------------------
 NVIDIA GeForce RTX 5090 after 10min
 Power Limit 525 W
 
