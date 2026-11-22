@@ -55,7 +55,7 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0285         -    155.052        1.5  PRIME
 8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0514         -          -        4.1  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.0647         -          -       13.1  (stopped after 1%)
-
+-------------------
 Virtual Machine
 name, power.draw [W], power.limit [W], temperature.gpu, clocks.current.sm [MHz], utilization.gpu [%]
 NVIDIA GeForce RTX 5090, 167.53 W, 575.00 W, 54, 2940 MHz, 97 %
@@ -83,9 +83,7 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0252         -    136.922        1.4  PRIME
 8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0369         -          -        3.0  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.0466         -          -        9.4  (stopped after 1%)
-
-
-
+-------------------
 
 Virtual Machine
 GPU: 	RTX 4070 ASUS
@@ -114,6 +112,7 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0484         -    262.907        2.6  PRIME
 8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0890         -          -        7.1  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.1274         -          -       25.8  (stopped after 1%)
+-------------------
 
 Virtual Machine
 GPU: NVIDIA GeForce RTX 5060 Ti
@@ -141,7 +140,7 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0462         -    251.068        2.5  PRIME
 8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0960         -          -        7.7  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.1465         -          -       29.7  (stopped after 1%)
-
+-------------------
 
 Virtual Machine
 name, power.draw [W], power.limit [W], temperature.gpu, clocks.current.sm [MHz], utilization.gpu [%]
@@ -170,3 +169,7 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^15c GPU HYB NTT 7p 83-bit       0.0502         -    272.944        2.7  PRIME
 8000010   100003 gpu 2^16c GPU HYB NTT 7p 62-bit       0.0996         -          -        8.0  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.1585         -          -       32.1  (stopped after 1%)
+-------------------
+
+Virtual Machine
+NVIDIA GeForce RTX 2080 Ti
