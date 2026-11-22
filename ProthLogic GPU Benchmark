@@ -110,3 +110,9 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^16c GPU HYB NTT 4p 42-bit       0.0462         -    251.068        2.5  PRIME
 8000010   100003 gpu 2^17c GPU HYB NTT 4p 31-bit       0.0960         -          -        7.7  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.1465         -          -       29.7  (stopped after 1%)
+
+
+Virtual Machine
+GPU: NVIDIA GeForce RTX 5060
+
+ProthLogic58
