@@ -72,6 +72,8 @@ Calculations finished.
 Total computation time: 27856.03 s
 
 NVIDIA GeForce RTX 5090 after 10min
+Power Limit 525 W
+
 
 (main) root@C.61946480:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --detail
 
