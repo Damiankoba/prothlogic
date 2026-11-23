@@ -172,6 +172,9 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 -------------------
 
 Virtual Machine
+NVIDIA GeForce RTX 4060
+
+Virtual Machine
 NVIDIA GeForce RTX 2080 Ti
 
 (main) root@C.61949734:~/prothlogic58$ GPU=1 ./bench.sh
