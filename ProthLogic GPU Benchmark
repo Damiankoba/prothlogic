@@ -2,8 +2,8 @@ Benchamrk Prothlogic vs. proth20
 For this benchmark I made tests with proth20 only on RTX 5080
 
 
-Virtual Machine
-GPU: NVIDIA GeForce RTX 5080 Founders Edition
+# Virtual Machine
+# GPU: NVIDIA GeForce RTX 5080 Founders Edition
 
 Proth20
 root@C.61771107:~/proth20test/proth20$ cd /root/proth20test/proth20 && chmod +x bench_proth20.sh && ./bench_proth20.sh
