@@ -1,4 +1,4 @@
-# ProthLogic
+# ProthLogic CPU & GPU program for primalty numbers tests
 
 ProthLogic tests numbers of the form **N = k·2ⁿ + 1** (Proth numbers) for primality.
 It runs on x86-64 CPUs with AVX-512 and on NVIDIA graphics cards, and it includes a GPU sieve
