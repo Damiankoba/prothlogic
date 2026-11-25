@@ -1,88 +1,88 @@
-# ProthLogic 
-an experimental program for sieving and testing Proth numbers (sources of v5.3 and v5.7 are open; v5.8 will be published after its first Top 5000 prime)”
-CPU/GPU tool for sieving and testing the primality of Proth numbers.
-Sources used to build the program:
-Article "What Every Programmer should know about memory",
-"mersenneforum.org"
-"Wikipedia"
-"AI models"
-To build my program I use the rule: don't copy, but inspire.
+# ProthLogic
 
-This project uses the MPIR / GMP library for multiple precision arithmetic.
-The included headers (gmp.h, gmpxx.h) are part of the MPIR Library and are distributed under the terms of the GNU Lesser General Public License (LGPL).
+ProthLogic tests numbers of the form **N = k·2ⁿ + 1** (Proth numbers) for primality.
+It runs on x86-64 CPUs with AVX-512 and on NVIDIA graphics cards, and it includes a GPU sieve
+that removes candidates with small factors before testing.
 
+- **Proven results.** For k < 2ⁿ the Proth test is a primality *proof*, not a probable-prime test.
+- **Checked while it runs.** Every block of squarings is verified with the Gerbicz–Li check.
+  A hardware or rounding error is caught and that block is computed again.
+- **CPU and GPU together.** The card can work as one more worker next to the CPU cores, or on its own.
+- **Resumable.** Progress is saved to checkpoint files. A stopped run continues where it ended,
+  even on another machine or after moving between CPU and GPU.
+- **Standard output.** Each composite gets a Proth RES64, so results can be compared with other programs.
 
-I am an independent creator of ProthLogic using AI models for coding, an open-source mathematical software program designed to test the primality of Proth numbers using both CPU and GPU resources.
+The first Top 5000 prime found with ProthLogic is 25902068371·2⁴⁰⁰⁰¹⁶⁸ + 1 (1,204,181 digits),
+found in November 2026 and verified with LLR2.
 
-What I'm building
-Our development focuses heavily on high-performance computing and low-level hardware optimizations. I write code that utilizes CPU cache retention, OpenMP multi-threading, and AVX-512 vector instructions to push modern hardware to its absolute limits and accelerate complex mathematical calculations.
+## Requirements
 
+- Linux on x86-64
+- g++ with C++17 and OpenMP, and GMP (`libgmp-dev` on Debian/Ubuntu)
+- For the CPU engine: a CPU with AVX-512 F, DQ, VBMI and IFMA (Intel Ice Lake or newer, AMD Zen 4 or newer)
+- For the GPU: an NVIDIA card, its driver and the CUDA toolkit (`nvcc`)
 
+A machine without AVX-512 can still use its NVIDIA card (see `./build.sh gpu` below).
+To see what your CPU has:
 
-## ProthLogic 5.8 (in development – not released yet)
+```bash
+grep -o 'avx512[a-z]*' /proc/cpuinfo | sort -u    # needs avx512f, avx512dq, avx512vbmi, avx512ifma
+nvidia-smi                                         # shows the NVIDIA card, if there is one
+```
 
-Version 5.8 adds a full **CUDA GPU engine** next to the AVX-512 CPU engine.
-The source code will be published after the first ProthLogic prime enters the Top 5000 list.
-Version 5.8 is focused on Proth numbers tested on GPU hardware.
+On Debian or Ubuntu the compiler and GMP are installed with:
 
-**What's new**
-- **GPU primality testing (CUDA)** for k·2^n+1: exact integer NTT arithmetic (no floating-point rounding errors), from small n up to 100,000,000-digit numbers
-- **Automatic plan selection**: at start-up the program benchmarks several transform layouts on the user's card and picks the fastest one
-- **Batch mode**: several candidates tested at once on one GPU, so even small numbers keep the card fully loaded
-- **GPU sieve** for large candidate lists
-- **Safe checkpoints**: data is flushed to disk, and damaged checkpoint files are detected and reported
-- **Gerbicz-Li error checking on GPU**: every segment of 65,536 squarings is verified; on a mismatch the test rolls back to the last verified state
-- **CPU ↔ GPU checkpoints**: a test started on the CPU can continue on the card and back
-- - **Hybrid CPU + GPU mode**: a list of candidates from a file is tested on the CPU (AVX-512) and the GPU at the same time, from one shared queue – each engine takes the next candidate as soon as it is free
-- Works on NVIDIA RTX 20, 40 and 50 series (tested: 2080 Ti, 4070, 5060, 5060 Ti, 5080, 5090)
+```bash
+sudo apt install build-essential libgmp-dev
+```
 
-**Results so far**
-- Same card (RTX 5080), same 18 test numbers: **2.87× faster than proth20** overall
-- Residues (RES64) of composite numbers match proth20 exactly (independent verification)
-- 100,000,000-digit Proth test (585·2^332192797+1) completed on GPU
-- Full numbers and performance tests: see `ProthLogic GPU Benchmark` and `one light-day Voyager 1`
+For the GPU part, install the CUDA toolkit from NVIDIA (it provides `nvcc`).
 
-### How the GPU engines work
+## Building
 
-Both engines compute the squarings of a Proth test (a^((N-1)/2) mod N, N = k·2^n+1) with **exact integer
-arithmetic** – a Number Theoretic Transform (NTT) modulo several 31-bit primes instead of a floating-point FFT,
-so there are no rounding errors to watch. The results for each prime are combined with the Chinese Remainder
-Theorem, then the carries are propagated.
+In the folder with the sources:
 
-**Classic GPU engine**
-- The number is split into small digits; each squaring is a cyclic convolution with zero padding
-  (the transform is twice as long as the number), followed by reduction modulo N.
-- 2–4 primes, 32-bit Montgomery arithmetic, large-radix passes that keep the data in on-chip memory.
-- Simple and robust; used for small n and as a reference for the hybrid engine.
+```bash
+./build.sh          # CPU engine + GPU (GPU part only when nvcc and a card are found)
+./build.sh gpu      # card only, for CPUs without AVX-512
+```
 
-**Hybrid NTT engine** (default from ~800k bits)
-- **No zero padding**: a weighted (negacyclic) convolution performs the reduction modulo k·2^n+1 inside the
-  transform itself, with digits of variable size – the transform is half as long as in the classic engine.
-- The transform runs over **complex numbers modulo p** (GF(p²), primes p ≡ 3 mod 4), which halves the length again.
-- Wide digits (up to ~80 bits) with 6–7 primes for very large numbers: fewer, bigger digits mean less memory traffic.
-- At start-up the program measures several layouts on the user's card and keeps the fastest one.
-- Every segment is verified with the Gerbicz-Li check; results match the classic engine and other programs bit for bit.
+The script prints what it found (CPU, card) and ends with `[build] done`. The program `prothlogic` is created
+in the same folder. It is tuned for the machine it was built on, so build it on each machine you use.
 
+## Quick start
 
-----------------
+**1. Test one number.** This is a known prime. With 4 threads the test takes a few minutes.
 
-## Version ProthLogic v5
-1. Continuing to optimize time ms/iter, actual for tested N=3322774 time is 1.35 ms/iter and for N=3099097 time is 1.40 ms/iter. both numbers are were tested at the same time with taskset-c 0-5/6-10 and working with 4 threads each test. done
-2. Implementation in progress: radix for AVX2(very slow for now, not supported by program yet) ?
-3. Operation Fusion (Eliminate unnecessary RAM reads) new function unpack_karatsuba_overlap_add_vbmi done
-4. Testing FMA instruction interleaving in functions like pass_radix5_seq or fft_stockham_radix4_blocked for Bailey2D 
-5. Testing Factorizer and Mixed-Radix Architecture: Bailey2D and Radix8 working on FFT Len $2^n$, Factorizer allows me to use an array size that is, for example, a combination of factors 2, 3, and 5, for now is much slower than Bailey2D with radix4 and Radix8 and radix 2 implementation for Bailey 2D engine. done
-6. Batch mode: I noticed that testing in batch mode runs threads sequentially, and autoconfig for larger numbers allows testing of one number due to a cache conflict, while the AMD Ryzen 9 9900X3D processor architecture allows testing of two numbers simultaneously, assigning them to separate L3 CCD0 and CCD1 chiplet. With the taskset -c 0-4/6-10 command. The next step will be to rebuild the batch mode and autoconfig file for processor analysis and adapt the test to separate L3 memories if possible without data conflicts and clogging the RAM bus. 
-7. Artifacts from other versions remain in the code for analysis and comparison purposes. done
-8. The sieve only used raw values ​​of k per line, and the community requires an interoperable ABC format (k·b^n+c). done
-9. Entering residues from composite results for maintaining verification records. (COMPOSITE (a=7 RES64: 0xC044C688349D2382)) All that remains is to save Composite results to the composite.txt file. done
-10. Testing Radix-8 supplemented with Prefetching, blocking, and the introduction of _mm512_stream_pd cache write instead of _mm512_store_pd. done
+```bash
+./prothlogic --n 1110912 --k 25902068371 --threads 4
+```
 
+At the end you should see `[!] FOUND PRIME: 25902068371*2^1110912+1 is prime!`.
 
------------------
-## Preparation for next version(v5) and actual work:
+**2. Sieve a range** (needs an NVIDIA card). This keeps only the candidates without small factors
+and saves them to a file in the ABC format, which LLR2 reads too. Nothing is tested yet.
+A deep sieve of a large range can take hours.
 
-1. I am continuing with cache optimization, with the new method huge arrays are now sliced ​​into small tiles, ensuring that the processor always rotates data into the fastest       cache (L1 Cache).  
-2. Radix-8 Logic Repair, previously, the engine could get stuck in the slower Radix-4 Bailey mode. 
-3. Implementation of the Gerbicz Test (Fault Tolerant Architecture). done
-4. Implementation of OpenMP for a test on several threads. done
+```bash
+./prothlogic --k 25902068371 --n-start 4000000 --n-end 5000000 --pmax 1e12 --sieve-only --out-sieve list.txt
+```
+
+**3. Test the list.** Use the CPU and the card together, or the card alone:
+
+```bash
+./prothlogic --in-file list.txt --gpu
+./prothlogic --in-file list.txt --gpu-only
+```
+
+Primes go to `primes.txt`, composites with their RES64 go to `composite.txt`.
+
+A long run can be stopped at any time with Ctrl+C. Start the same command again in the same folder and it
+continues: finished candidates are skipped and the interrupted test resumes from its last checkpoint.
+On a remote machine, run long jobs inside `screen` or `tmux` so they survive a lost connection.
+
+## Documentation
+
+- [User Guide](docs/user-guide.md): all options, file formats, output, checkpoints and tips.
+- [Tuning and Diagnostics](docs/tuning-and-diagnostics.md): environment variables, measuring and profiling.
+- [Architecture](docs/architecture.md): how the test, the CPU and GPU engines and the sieve work inside.
