@@ -1,4 +1,4 @@
-# ProthLogic CPU & GPU program for primality test of Proth prime numbers
+# ProthLogic
 
 ProthLogic tests numbers of the form **N = k·2ⁿ + 1** (Proth numbers) for primality.
 It runs on x86-64 CPUs with AVX-512 and on NVIDIA graphics cards, and it includes a GPU sieve
@@ -55,10 +55,12 @@ in the same folder. It is tuned for the machine it was built on, so build it on 
 **1. Test one number.** This is a known prime. With 4 threads the test takes a few minutes.
 
 ```bash
-./prothlogic --n 1110912 --k 25902068371 --threads 4
+./prothlogic "25902068371*2^1110912+1" --threads 4
 ```
 
 At the end you should see `[!] FOUND PRIME: 25902068371*2^1110912+1 is prime!`.
+The same number can also be given as `--k 25902068371 --n 1110912`. Keep the quotes around the number:
+without them the shell may treat `*` as a file pattern.
 
 **2. Sieve a range** (needs an NVIDIA card). This keeps only the candidates without small factors
 and saves them to a file in the ABC format, which LLR2 reads too. Nothing is tested yet.
