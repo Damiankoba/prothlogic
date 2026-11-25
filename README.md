@@ -1,6 +1,6 @@
-# ProthLogic: CPU & GPU primality testing of Proth numbers
+# ProthLogic 5.8: CPU & GPU primality testing of Proth numbers
 
-ProthLogic tests numbers of the form **N = k·2ⁿ + 1** (Proth numbers) for primality.
+ProthLogic 5.8 tests numbers of the form **N = k·2ⁿ + 1** (Proth numbers) for primality.
 It runs on x86-64 CPUs with AVX-512 and on NVIDIA graphics cards, and it includes a GPU sieve
 that removes candidates with small factors before testing.
 
