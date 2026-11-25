@@ -1,0 +1,19 @@
+# build output
+prothlogic
+*.o
+.obj/
+.obj_gpu/
+.gpu_arch
+build_warnings.txt
+
+# files written while running
+primes.txt
+composite.txt
+check_*.bin
+check_*.bin.time
+*.bad
+fft_calibration.txt
+
+# benchmark runs
+bench/bench_tmp/
+bench/*.csv
