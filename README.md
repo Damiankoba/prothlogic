@@ -5,6 +5,9 @@ It runs on x86-64 CPUs with AVX-512 and on NVIDIA graphics cards, and it include
 that removes candidates with small factors before testing.
 
 - **Proven results.** For k < 2ⁿ the Proth test is a primality *proof*, not a probable-prime test.
+- **Up to 100 million digits.** Numbers of 100 million digits (n ≈ 332 million) are tested on the card:
+  about 3 days on an RTX 5090 and 4.5 days on an RTX 5080. The full test of 7·2³³²¹⁹²⁸⁰⁶ + 1 took 10 days on an RTX 5060 Ti,
+  with an early version made before the optimizations for this size; the current one is faster.
 - **Checked while it runs.** Every block of squarings is verified with the Gerbicz–Li check.
   A hardware or rounding error is caught and that block is computed again.
 - **CPU and GPU together.** The card can work as one more worker next to the CPU cores, or on its own.
@@ -57,6 +60,9 @@ In the folder with the sources:
 ./build.sh gpu      # card only, for CPUs without AVX-512
 ```
 
+If the shell answers `Permission denied`, make the scripts executable first:
+`chmod +x build.sh bench/*.sh`.
+
 The script prints what it found (CPU, card) and ends with `[build] done`. The program `prothlogic` is created
 in the same folder. It is tuned for the machine it was built on, so build it on each machine you use.
 
@@ -92,6 +98,21 @@ Primes go to `primes.txt`, composites with their RES64 go to `composite.txt`.
 A long run can be stopped at any time with Ctrl+C. Start the same command again in the same folder and it
 continues: finished candidates are skipped and the interrupted test resumes from its last checkpoint.
 On a remote machine, run long jobs inside `screen` or `tmux` so they survive a lost connection.
+
+## Checking and measuring
+
+The `bench/` folder has a benchmark script:
+
+```bash
+cd bench
+./bench.sh              # on the CPU, with 1 thread and with all cores: short list (5 numbers)
+GPU=1 ./bench.sh        # on the NVIDIA card: full list (20 numbers, up to 6 million digits)
+```
+
+It prints a table and saves it as a CSV file. The first two numbers on both lists are known primes,
+so their result must be `PRIME`; this also checks that the build works correctly.
+A list can also be chosen by hand: `./bench.sh bench_list.txt` (full list on the CPU, several hours)
+or `GPU=1 ./bench.sh bench_quick.txt` (short list on the card). The options are described at the top of the script.
 
 ## Documentation
 
