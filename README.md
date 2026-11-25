@@ -114,6 +114,18 @@ so their result must be `PRIME`; this also checks that the build works correctly
 A list can also be chosen by hand: `./bench.sh bench_list.txt` (full list on the CPU, several hours)
 or `GPU=1 ./bench.sh bench_quick.txt` (short list on the card). The options are described at the top of the script.
 
+## How it was made
+
+ProthLogic is written in cooperation with artificial intelligence (Claude by Anthropic).
+The design, the decisions and the testing are done by the author; the AI helps to write and review the code.
+
+- The code is written from scratch. It is built on public mathematics and published techniques
+  (Proth's theorem, FFT and NTT, the IBDWT of Crandall and Fagin, Bailey's FFT, Montgomery multiplication,
+  the Chinese remainder theorem, the Gerbicz–Li check). No code was taken from other primality programs.
+- Every change was measured on real hardware and checked against known results: known primes,
+  RES64 values compared with LLR2 and with proth20, and the Gerbicz–Li check during every test.
+- The first Top 5000 prime found with ProthLogic was verified independently with LLR2.
+
 ## Documentation
 
 - [User Guide](docs/user-guide.md): all options, file formats, output, checkpoints and tips.
