@@ -1,10 +1,12 @@
-Prime Numbers discovered by ProthLogic and verified with LLR2 1.3.3
+Bigest Prime Numbers discovered by program ProthLogic and doube-verified with LLR2 1.3.3
 
-25902068371*2^2677876+1 is prime! (806132 decimal digits)
+
+25902068371*2^4000168+1 is prime! (1204181 decimal digits) (a=3)
+25902068371*2^2677876+1 is prime! (806132 decimal digits) (a=3)
 25902068371*2^1110912+1 is prime! (334429 decimal digits) (a=3)
 25902068371*2^1014988+1 is prime! (305553 decimal digits) (a=3)
-30307731*2^995860+1 is prime! (299792 decimal digits) Time : 172.702 sec. (a=5)(CPU)
-30035095*2^995860+1 is prime! (299792 decimal digits) Time : 42.097 sec. (a=3)(GPU)
+30307731*2^995860+1 is prime! (299792 decimal digits) (a=5)
+30035095*2^995860+1 is prime! (299792 decimal digits) (a=3)
 25902068371*2^730600+1 is prime! (219943 decimal digits) (a=3)
 25902068371*2^464376+1 is prime! (139802 decimal digits) (a=3)
 152691 * 2^426497 + 1 (a=5)
