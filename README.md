@@ -41,6 +41,16 @@ sudo apt install build-essential libgmp-dev
 
 For the GPU part, install the CUDA toolkit from NVIDIA (it provides `nvcc`).
 
+### Windows
+
+ProthLogic runs on Windows 10 and 11 through WSL2 (the Linux system built into Windows); NVIDIA supports CUDA there.
+This setup has not been tested by us yet:
+
+1. In PowerShell as administrator: `wsl --install` (installs Ubuntu), then restart.
+2. Install the normal NVIDIA driver for Windows (no driver is installed inside Linux).
+3. In Ubuntu: `sudo apt install build-essential libgmp-dev`, the CUDA toolkit for "WSL-Ubuntu" from NVIDIA,
+   then build as described below.
+
 ### Tested hardware
 
 | | Tested on |
@@ -125,6 +135,12 @@ The design, the decisions and the testing are done by the author; the AI helps t
 - Every change was measured on real hardware and checked against known results: known primes,
   RES64 values compared with LLR2 and with proth20, and the Gerbicz–Li check during every test.
 - The first Top 5000 prime found with ProthLogic was verified independently with LLR2.
+
+## License
+
+ProthLogic is free software under the GNU General Public License v3.0 or later (see `LICENSE`).
+You may use, study, change and share it. If you distribute a changed version, it must stay under the same
+license, with its source code.
 
 ## Documentation
 
