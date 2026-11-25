@@ -35,7 +35,7 @@ root@C.60749956:~/prothlogic58$ ./prothlogic --n 332192797 --k 585 --gpu-only --
   [GPU] 585*2^332192797+1: HYBRID NTT 2^21 complex (2^22 digits) x 7 primes, 80-bit digits, 2 carry passes, column pass (L2 order by prime, 2 streams), WIDE (worst case), radix-16/8 block
   GPU | 12.91% | iter 42890496 / 332192796 | 1.2852 ms/iter | ETA 4d 07h
 
-Server offline, but i have working script on computer which downloading checkpoint every 5h and i start again test on new instance with thr same card but is +-0.1 ms/iter slower.
+Server offline, but i have working script on computer which downloading checkpoint every 5h and i start again test on new instance with the same card but is +-0.1 ms/iter slower.
  
 ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
   585*2^332192797+1  (100000000 decimal digits)
