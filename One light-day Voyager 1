@@ -17,6 +17,7 @@
 25902068371*2^1014988+1 is prime! (305553 decimal digits) (a=3)
 25902068371*2^1110912+1 is prime! (334429 decimal digits) (a=3)
 25902068371*2^2677876+1 is prime! (806132 decimal digits) (a=3)
+25902068371*2^4000168+1 is prime! (1204181 decimal digits) (a=3)
 
 below some logs of tests.
 Times of Primes are diferent because in one run i use CPU + GPU
@@ -707,7 +708,7 @@ Starting ZCSieve GPU for N=2700001..3700000 (k=25902068371), from P=0 to Pmax=50
 [SIEVE] Saving 21186 surviving candidates to file: voyager_2700001_3700000_P5e12.txt
 [INFO] The --sieve-only flag is active. Stopping before the FFT.
 
-One more sive to bigger pmax 30000000000000
+One more sive to higher pmax 30000000000000
 root@C.60387947:~/prothlogic58$ ./prothlogic --n-start 2700001 --n-end 3700000 --k 25902068371 --in-file voyager_2700001_3700000_P5e12.txt --pstart 5000000000000 --pmax 30000000000000 --sieve-only --out-sieve voyager_2700001_3700000_P3e13.txt
                                                                                                      
 ProthLogic 5.8 & GPUsieve                                                                          
@@ -717,3 +718,38 @@ N Range=[2700001..3700000]  Fixed K=25902068371
 [DONE] Sieve time: 29174.8 s                                                                       
 [SIEVE] Saving 19959 surviving candidates to file: voyager_2700001_3700000_P3e13.txt               
 [INFO] The --sieve-only flag is active. Stopping before the FFT.
+
+
+-----------------------------------
+1-milon N's sieve 3700001 - 4700000
+-----------------------------------
+sieve file was split across three virtual machines
+
+Log from one of them with Prime number
+root@C.61605693:~/prothlogic58$ ./prothlogic --in-file voyager_3700001_4700000_P5e12_reszta_9950X.txt --workers 2 --threads 8 --pin --gpu
+
+  ProthLogic 5.8 & GPUsieve
+  N Range=[3878620..4699908]  Fixed K=25902068371
+  Workers (candidates at once): 2  |  Threads per candidate: 8
+
+[SYSTEM] Loaded 5894 N-candidates from voyager_3700001_4700000_P5e12_reszta_9950X.txt
+[INFO] Bypassing GPU sieve. Directly loading candidates for primality test.
+
+  Starting Proth Test: 5894 candidate(s) in 5894 task(s), 2 at once x 8 thread(s) + GPU
+ [CPU IBDWT] k=25902068371 (35 bits): FFT 131072 self-test vs GMP failed, FFT 196608 self-test vs GMP failed - not used
+ [CPU CALIBRATION] classic FFT 262144 (18-bit digits): PASS
+[GPU] WIDE 7 bench: classic NTT 2^19 x 2 (18-bit) 0.0488 ms/iter vs WIDE 7 2^15 x 7 0.0286 ms/iter (-41.3%), values equal -> WIDE 7 (1.0 s)
+[GPU] quick test, candidates at once (speed vs 1): 1: 1.00, 2: 1.46, 3: 1.90, 4: 2.03, 5: 2.25, 6: 2.23, 7: 2.13 -> 5 (rule 4, 3.6 s)
+[GPU] NVIDIA GeForce RTX 5080: 5 more workers on the queue (5 candidates at once on the card)
+[PIN] 2 worker(s) x 8 thread(s) pinned to CPUs 0-15
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 60-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 61-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 62-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+
+[!] FOUND PRIME: 25902068371*2^4000168+1 is prime! (1204181 decimal digits) Time : 270.897 sec. (a=3)
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 63-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 64-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 65-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 66-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  [GPU] plan: HYBRID NTT 2^15 complex (2^16 digits) x 7 primes, 67-bit digits, 2 carry passes, WIDE (worst case), radix-16/8 block, pack table, unpack table
+  Batch: 3633 / 5894 (61.6%) | primes: 1 | elapsed 2d 03h | ETA 1d 11h
