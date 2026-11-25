@@ -8,6 +8,8 @@ This page is for two situations:
 - you want to change an automatic choice (section 2);
 - you want to measure, check or compare the engines (sections 3 to 5).
 
+Technical words (kernel, NTT, CRT, L2 cache, ...) are explained in the [glossary](architecture.md#8-glossary).
+
 ## Contents
 
 1. [How to set a variable](#1-how-to-set-a-variable)

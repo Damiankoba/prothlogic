@@ -12,6 +12,9 @@ large numbers, and how the sieve works. It is meant for readers who want to unde
 5. [The GPU engines](#5-the-gpu-engines)
 6. [The GPU sieve](#6-the-gpu-sieve)
 7. [Running many tests: workers and the card](#7-running-many-tests-workers-and-the-card)
+8. [Glossary](#8-glossary)
+
+Technical words are explained briefly in the [glossary](#8-glossary) at the end.
 
 ---
 
@@ -255,7 +258,7 @@ solved by **baby-step giant-step**. Write n = n₀ + g·m + j with 0 ≤ j < m:
 - giant steps: c = k·2^(n₀+g·m) for g = 0, 1, 2, ... (one multiplication each), each looked up in the table.
 
 A match gives n = n₀ + g·m + j. A range of R values of n costs about m + R/m steps instead of R, and m is chosen
-near √R / 2. One warp handles one prime. Table entries are short fingerprints; every match is checked exactly,
+near √R / 2. One warp (a group of 32 GPU threads that run together) handles one prime. Table entries are short fingerprints; every match is checked exactly,
 so a fingerprint clash can never remove a candidate by mistake.
 
 The primes themselves are produced on the card with a segmented sieve of Eratosthenes.
@@ -288,3 +291,38 @@ the test itself. The reported time is the sum of both parts.
 | the card fails 5 checks in a row, or a CUDA error | the candidate goes back to the CPU, from its checkpoint |
 | the card has no plan for a candidate | the candidate goes to the CPU (with `--gpu-only` it is listed as not tested) |
 | a checkpoint cannot be read | a loud warning, the file is kept as `.bad`, the test starts again |
+
+---
+
+## 8. Glossary
+
+| Word | Meaning |
+|---|---|
+| AVX-512 | CPU instructions that work on 512 bits at once, for example 8 floating-point numbers of 64 bits |
+| lane | one of those 8 numbers in an AVX-512 register; the 8 lanes are computed together |
+| baby-step giant-step | a way to find n in k·2ⁿ ≡ −1 (mod p) with about √R steps instead of R (section 6) |
+| balanced digits | digits between −2^(B−1) and 2^(B−1) instead of 0 and 2^B (section 4) |
+| CCD | core complex: a group of CPU cores with its own L3 cache (6 or 8 cores on Ryzen) |
+| CRT | Chinese remainder theorem: rebuilds a large number from its remainders modulo several primes |
+| CUDA | NVIDIA's system for running programs on its graphics cards |
+| CUDA Graph | a recorded sequence of GPU work that can be replayed with one command, which saves CPU time |
+| CUDA stream | a queue of GPU work; work in different streams can run at the same time |
+| discrete logarithm | finding the power n in an equation like k·2ⁿ ≡ −1 (mod p) |
+| FFT | fast Fourier transform: the fast way to multiply very large numbers, with floating-point values |
+| GF(p²) | "complex numbers modulo p": pairs a + b·i with i² = −1, all computed modulo p |
+| GMP | a standard library for exact arithmetic on large numbers, used here for checks and small steps |
+| IBDWT | irrational-base discrete weighted transform: a transform that multiplies modulo k·2ⁿ + 1 directly, without zero padding (section 4) |
+| Jacobi symbol | tells whether a number can be a square modulo N; the test needs a base *a* with (a/N) = −1 |
+| kernel | one program that runs on the graphics card, on many threads at once |
+| L2 / L3 cache | small, fast memory on the chip that keeps recently used data |
+| Montgomery multiplication | a way to compute a·b mod p without a slow division |
+| NTT | number-theoretic transform: an FFT with exact integers modulo a prime, so without rounding error |
+| pass | one complete read and write of the data in memory; fewer passes = faster |
+| radix | how many values one step of a transform combines (2, 4, 8, ...) |
+| shared memory | a small, fast memory inside the graphics card, shared by the threads of one block |
+| sieve of Eratosthenes | the classic method to list all primes up to a limit |
+| thread | one line of execution; a CPU worker uses several, a card runs thousands |
+| tile | a small piece of the data, loaded into fast memory and processed there |
+| twiddle factors | the fixed multipliers (roots of unity) used inside an FFT or NTT |
+| warp | a group of 32 GPU threads that always run the same instruction together |
+| zero padding | filling the second half of a transform with zeros, so the product does not wrap around |
