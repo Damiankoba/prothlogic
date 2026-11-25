@@ -223,3 +223,23 @@ N         k      thr FFT   engine                     ms/iter    MaxErr t_all_s 
 5435752   91     gpu 2^15c GPU HYB NTT 7p 83-bit       0.0825         -    448.651        4.5  PRIME
 8000010   100003 gpu 2^16c GPU HYB NTT 7p 62-bit       0.1379         -          -       11.0  (stopped after 1%)
 20267500  7      gpu 2^17c GPU HYB NTT 6p 78-bit       0.2398         -          -       48.6  (stopped after 1%)
+
+
+------------------
+The biggest known Proth prime
+
+root@C.61771107:~/prothlogic58$ ./prothlogic "10223*2^31172165+1" --gpu-only
+
+  ProthLogic 5.8 & GPUsieve (GPU-only build: no AVX-512 CPU engine)
+  10223*2^31172165+1  (9383761 decimal digits)
+  GPU only (no CPU workers)
+
+
+  Starting Proth Test: 1 candidate(s), 1 at once on the GPU
+[GPU] NVIDIA GeForce RTX 5080: GPU only, 1 candidate(s) at once on the card
+  [GPU] 10223*2^31172165+1: HYBRID NTT 2^18 complex (2^19 digits) x 6 primes, 60-bit digits, 2 carry passes, WIDE (statistical), radix-16/8 block
+
+[!] FOUND PRIME: 10223*2^31172165+1 is prime! (9383761 decimal digits) Time : 4331.681 sec. (a=3)
+
+Calculations finished.
+Total computation time: 4340.95 s
