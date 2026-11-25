@@ -86,7 +86,6 @@ Power Limit 525 W
 
   Starting Proth Test: 1 candidate(s), 1 at once on the GPU
 [GPU] NVIDIA GeForce RTX 5090: GPU only, 1 candidate(s) at once on the card
-nvidia-smi --query-gpu=power.draw,power.limit,clocks.sm,utilization.gpu --format=csv
 
 [GPU] L2 order bench: all primes 666.5 us vs prime by prime 681.3 us a square (+2.2%) -> all primes (0.5 s)
 [GPU] L2 order bench: all primes 620.0 us vs prime by prime 640.5 us a square (+3.3%) -> all primes (0.5 s)
