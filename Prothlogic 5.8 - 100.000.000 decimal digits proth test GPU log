@@ -2,7 +2,8 @@
 Succesfull run and my bigest tested number, it took almost 11 days on this hardware(this instance had power limits), but i have already had version prep for other instance with no limits.
 If there was 1 iteration in the last segment, all the constant overhead (approx. 0.8 s) falls on it, hence 796.8 ms/iter. Whole test is stable
 
-root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-only --detail
+
+root@C.57042128:~/prothlogic58$ ./prothlogic --n 332192806 --k-start 7 --gpu-only --detail 
 
   ProthLogic 5.8 & GPUsieve
   7*2^332192806+1  (100000000 decimal digits)
