@@ -1,6 +1,6 @@
-# Tuning and Diagnostics
+# ProthLogic 5.8: Tuning and Diagnostics
 
-ProthLogic chooses its settings by itself: the transform size, the number of candidates on the card,
+ProthLogic 5.8 chooses its settings by itself: the transform size, the number of candidates on the card,
 the CPU engine. You do not need anything from this page for normal work.
 
 This page is for two situations:

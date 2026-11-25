@@ -1,6 +1,6 @@
-# ProthLogic User Guide
+# ProthLogic 5.8 User Guide
 
-This guide explains how to build ProthLogic, how to tell it what to test, and how to read what it writes.
+This guide explains how to build ProthLogic 5.8, how to tell it what to test, and how to read what it writes.
 
 ## Contents
 

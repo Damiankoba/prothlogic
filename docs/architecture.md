@@ -1,6 +1,6 @@
-# Architecture
+# ProthLogic 5.8: Architecture
 
-This page explains how ProthLogic works inside: how a test runs, how the CPU and GPU engines square
+This page explains how ProthLogic 5.8 works inside: how a test runs, how the CPU and GPU engines square
 large numbers, and how the sieve works. It is meant for readers who want to understand or change the code.
 
 ## Contents
