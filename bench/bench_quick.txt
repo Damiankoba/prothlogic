@@ -1,0 +1,8 @@
+# Short list for bench.sh: "n k" on each line. Lines starting with # are skipped.
+# Two known primes (correctness) and three larger sizes with RES64 to compare between machines.
+# About 5-10 minutes on an RTX 5080 (GPU=1 ./bench.sh).
+96209 7623
+426497 9675
+832962 9553
+1876758 613
+3424433 4715
