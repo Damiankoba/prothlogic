@@ -1,4 +1,4 @@
-# ProthLogic
+# ProthLogic: CPU & GPU primality testing of Proth numbers
 
 ProthLogic tests numbers of the form **N = k·2ⁿ + 1** (Proth numbers) for primality.
 It runs on x86-64 CPUs with AVX-512 and on NVIDIA graphics cards, and it includes a GPU sieve
@@ -37,6 +37,16 @@ sudo apt install build-essential libgmp-dev
 ```
 
 For the GPU part, install the CUDA toolkit from NVIDIA (it provides `nvcc`).
+
+### Tested hardware
+
+| | Tested on |
+|---|---|
+| CPU engine (AVX-512) | AMD Ryzen 9 9900X, 9900X3D, 9950X (Zen 5); Ryzen 9 8945HX, Ryzen 7 7700X, EPYC 9334 (Zen 4) |
+| NVIDIA cards | RTX 5090, RTX 5080 (ASUS, Zotac, NVIDIA Founders Edition), RTX 5070 Ti, RTX 5060 Ti 16 GB, RTX 5060; RTX 4090, RTX 4070 (ASUS), RTX 4060; RTX 2080 Ti; A100 40 GB |
+| GPU-only build (`./build.sh gpu`) | Intel Core i3-8100, Core i5-14600KF, Xeon E5-2680 v4, E5-2698 v3, E5-2690 v2; AMD EPYC 7K62, 7532, 7642; Ryzen 7 5700X |
+
+Other NVIDIA cards with CUDA should work too. The program measures the card at the start and picks its settings itself.
 
 ## Building
 
