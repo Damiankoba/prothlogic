@@ -1637,7 +1637,11 @@ uint64_t hinvm(uint64_t a, uint64_t m) {   // a^-1 mod m (gcd 1), m < 2^62
 // the plan: the smallest np * L with the worst case of |w_t| < P/2 (primes: e >= lgL, k a square mod p)
 // wide 7 / 6: the wide digits with exactly that many primes - 7 by the worst case, 6 by the typical size of w
 // (max |w| ~ 2^(d+2+2(B-1)+lgL/2+3), 4 bits of margin below P/2; GEC as the guard); B <= 96, the fold d + B <= 110
-// (i128), the block of 2048 (lgM >= 12)
+// (i128; WIDE 7: d + B <= 120), the block of 2048 (lgM >= 12)
+// The fold of k_hcrtW: cur = rem 2^bv + pw 2^d with rem < k < 2^d, bv <= B and pw = H - 1 parts below 2^B (the top
+// part too: H is chosen so that (H-1) Bm >= sum - B), so |cur| < (H + 2) 2^(d+B) <= 2^(d+B+3.4) < 2^127 for
+// d + B <= 120 (H <= 8). WIDE 7 goes through its bench (values compared with the other engine) and the GEC.
+// Example: a 35-bit k (Voyager) keeps 2^15 complex x 7 up to n = 5308381 (81-bit digits) instead of 4915165.
 bool hyb_plan_w(unsigned n, uint64_t k, HybEngine& h, int wide) {
     const int d = 64 - __builtin_clzll(k);
     const uint64_t nd = (uint64_t)n + d;
@@ -1646,7 +1650,7 @@ bool hyb_plan_w(unsigned n, uint64_t k, HybEngine& h, int wide) {
     for (int lg = 13; lg <= 24; ++lg) {
         const uint64_t L = (uint64_t)1 << lg;
         const int Bm = (int)(nd / L), B = (int)((nd + L - 1) / L);
-        if (wide ? (Bm < 8 || B > 96 || d > Bm || d + B > 110 || d > 47) : (Bm < 8 || B > 48 || d > Bm || d + B > 58 || d > 47))
+        if (wide ? (Bm < 8 || B > 96 || d > Bm || d + B > (wide == 7 ? 120 : 110) || d > 47) : (Bm < 8 || B > 48 || d > Bm || d + B > 58 || d > 47))
             continue;
         std::vector<uint32_t> ps;
         for (uint32_t p : HYB_PRIMES)
@@ -1659,7 +1663,7 @@ bool hyb_plan_w(unsigned n, uint64_t k, HybEngine& h, int wide) {
             if (H > 8) continue;
             const double D = std::ldexp(1.0, B - 1) + 1, Dt = (3.0 * H + 2) * std::ldexp(1.0, B) + std::ldexp(1.0, B + 1);
             // WIDE 7 (the worst case, only through its bench) up to Dt < 2^112 (hredc2 takes |v| < 2^115; the i128 of k_hcrtW:
-            // B <= 96, d + B <= 110 above); WIDE 6 (the automatic plans, no bench) keeps Dt < 2^84
+            // B <= 96, d + B <= 120 above); WIDE 6 (the automatic plans, no bench) keeps Dt < 2^84 and d + B <= 110
             if (Dt >= std::ldexp(1.0, wide == 7 ? 112 : 84)) continue;
             const double wb = (d + 2) + std::log2((double)(L - 2) * D * D + 2 * D * Dt + Dt * Dt);
             const bool ok = wide == 6 ? (d + 2) + 2.0 * (B - 1) + 0.5 * lg + 3 + 4 < sum - 1 : wb + 1 < sum - 0.01;
